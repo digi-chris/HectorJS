@@ -32,6 +32,18 @@ module.exports.CommandLink = function(hectorDevice) {
         callback(hectorDevice.RigDevices);
     };
 
+    this.getRackDevices = function(rackName, callback) {
+        if(hectorDevice.Devices[rackName]) {
+            callback(hectorDevice.Devices[rackName]);
+        } else {
+            callback(null);
+        }
+    };
+
+    this.removeDeviceFromRack = function(deviceGuid) {
+        hectorDevice.RemoveRackDevice(deviceGuid);
+    };
+
     this.connect = function(fromConnectionGuid, toConnectionGuid, callback) {
         if(hectorDevice.HectorCore.AllConnections) {
             var fromConn = hectorDevice.HectorCore.AllConnections[fromConnectionGuid];

@@ -218,7 +218,7 @@ button:hover {
     right: 222px;
     bottom: 42px;
     overflow: auto;
-    pointer-events: none;
+    /* pointer-events: none; /* TODO: Unsure why this was set here - find out? .. something to do with RigView.html clashing with RackView.html */
 }
 
 .DeskViewDiv {

@@ -27,10 +27,18 @@ module.exports.DummyDevice = function() {
     //connOutput.DataArrived = dataArrived;
     //connOutput.ConnectionUpdated = connUpdated;
 
-    var sendCount = 0;
-    setInterval(function() {
-        connOutput.FrameArrived( sendCount, false );
-        sendCount++;
-    }, 1000);
+    var intervalID;
+    device.Init = function() {
+        var sendCount = 0;
+        intervalID = setInterval(function() {
+            connOutput.FrameArrived( sendCount, false );
+            sendCount++;
+        }, 1000);
+    };
+
+    device.Shutdown = function() {
+        clearInterval(intervalID);
+    };
+
     return device;
 }

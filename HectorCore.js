@@ -32,6 +32,10 @@ var IODevice = function() {
         // override in module
     };
 
+    this.Shutdown = function() {
+        // override in module
+    };
+
     this.DeviceUpdated = function() {
         // should be overridden
     };
@@ -136,6 +140,39 @@ var AllConnections = {};
 
 module.exports.AllConnections = AllConnections;
 
+
+if (!Object.prototype.watch)
+Object.prototype.watch = function (prop, handler) {
+    var oldval = this[prop], newval = oldval,
+    getter = function () {
+        return newval;
+    },
+    setter = function (val) {
+        oldval = newval;
+        return newval = handler.call(this, prop, oldval, val);
+    };
+    if (delete this[prop]) { // can't watch constants
+        if (Object.defineProperty) // ECMAScript 5
+            Object.defineProperty(this, prop, {
+                get: getter,
+                set: setter,
+                enumerable: true
+            });
+        else if (Object.prototype.__defineGetter__ && Object.prototype.__defineSetter__) { // legacy
+            Object.prototype.__defineGetter__.call(this, prop, getter);
+            Object.prototype.__defineSetter__.call(this, prop, setter);
+        }
+    }
+};
+
+// object.unwatch
+if (!Object.prototype.unwatch)
+Object.prototype.unwatch = function (prop) {
+    var val = this[prop];
+    delete this[prop]; // remove accessors
+    this[prop] = val;
+};
+
 module.exports.IOConnection = function(parentDevice) {
     var tobj = this;
     this.guid = uuidv1();
@@ -144,12 +181,39 @@ module.exports.IOConnection = function(parentDevice) {
     this.FrameType = null;
     this.HasData = false;
     this.LastUpdate = 0;
+    this._parentDevice = parentDevice;
 
     AllConnections[this.guid] = this;
 
     var connectedToGuid = '';
 
-    watchjs.watch(tobj, 'ConnectedTo', function() {
+    this.watch('ConnectedTo', function(prop, oldval, val) {
+        //console.log('ConnectedTo changed');
+        //console.log(oldval);
+        //console.log(val);
+        if(val !== null) {
+            if(val.guid !== connectedToGuid) {
+                connectedToGuid = val.guid;
+                setTimeout(() => {
+                    console.log('ConnectedTo changed.');
+                    parentDevice.ConnectionUpdated(tobj);
+                    tobj.OnConnectionChanged();
+                }, 0);
+            }
+        } else if(connectedToGuid !== '') {
+            connectedToGuid = '';
+            setTimeout(() => {
+                console.log('ConnectedTo disconnected.');
+                console.log(tobj.ConnectedTo);
+                parentDevice.ConnectionUpdated(tobj);
+                tobj.OnConnectionChanged();
+            }, 0);
+        }
+
+        return val;
+    });
+
+    /*watchjs.watch(tobj.ConnectedTo, function() {
         if(tobj.ConnectedTo !== null) {
             if(tobj.ConnectedTo.guid !== connectedToGuid) {
                 connectedToGuid = tobj.ConnectedTo.guid;
@@ -163,7 +227,7 @@ module.exports.IOConnection = function(parentDevice) {
             parentDevice.ConnectionUpdated(tobj);
             tobj.OnConnectionChanged();
         }
-    });
+    }, 1);*/
 
     this.OnFrameArrived = function(frame) {
         // should be overridden

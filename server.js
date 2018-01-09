@@ -55,6 +55,52 @@ var Hector = function() {
 
         return null;
     };
+
+    this.RemoveRackDevice = function(deviceGuid) {
+        for(var rackName in tobj.Devices) {
+            if(Array.isArray(tobj.Devices[rackName])) {
+                var devices = tobj.Devices[rackName];
+                for(var i = 0; i < devices.length; i++) {
+                    if(devices[i].guid === deviceGuid) {
+                        console.log('found ' + deviceGuid);
+                        // we found the device, now disconnect any connections
+                        for(var j = 0; j < devices[i].Connections.length; j++) {
+                            if(devices[i].Connections[j].ConnectedTo !== null) {
+                                console.log('Removing TO connection ' + devices[i].Connections[j].guid);
+                                devices[i].Connections[j].ConnectedTo = null;
+                            }
+                        }
+
+                        //console.log('DEVICE ==============');
+                        //console.log(devices[i]);
+                        for(var connGuid in HectorCore.AllConnections) {
+                            if(HectorCore.AllConnections[connGuid] !== null) {
+                                //console.log("Looking at:");
+                                //console.log(HectorCore.AllConnections[j].ConnectedTo._parentDevice);
+                                if(HectorCore.AllConnections[connGuid].ConnectedTo) {
+                                    if(HectorCore.AllConnections[connGuid].ConnectedTo._parentDevice === devices[i]) {
+                                        console.log('Removing FROM connection ' + HectorCore.AllConnections[connGuid].guid);
+                                        HectorCore.AllConnections[connGuid].ConnectedTo = null;
+                                    }
+                                }
+                            }
+                        }
+
+                        var device = devices[i];
+
+                        // remove the device from the device list
+                        devices.splice(i, 1);
+
+                        // destroy the device
+                        device.Shutdown();
+
+                        hectorGCP.SendMessage("DeviceRemoved", [deviceGuid]);
+                        return;
+                    }
+                }
+            }
+        }
+    };
 };
 
 var h = new Hector();

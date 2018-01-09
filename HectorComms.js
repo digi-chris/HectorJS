@@ -12,7 +12,7 @@ var localAddress = '0.0.0.0';
 function jsonReplacer(key, value)
 {
     if (key.startsWith("_") && !key.startsWith('__')) {
-        console.log('Not serializing private key ' + key + '.');
+        //console.log('Not serializing private key ' + key + '.');
         return undefined;
     } else {
         return value;
@@ -43,7 +43,7 @@ Object.keys(ifaces).forEach(function (ifname) {
 
 module.exports.GCPServer = function(commandLink) {
     const wss = new WebSocket.Server({ port : 80 });//'ws://localhost/GCP');
-    var connections = [];
+    //var connections = [];
 
     this.SendMessage = function(messageName, args) {
         var msg = {
@@ -53,14 +53,22 @@ module.exports.GCPServer = function(commandLink) {
             "arguments" : args
         };
 
-        for(var i = 0; i < connections.length; i++) {
-            connections[i].send(JSON.stringify(msg));
-        }
+        //for(var i = 0; i < connections.length; i++) {
+        //    connections[i].send(JSON.stringify(msg));
+        //}
+
+        var data = JSON.stringify(msg, jsonReplacer);
+        //console.log(data);
+        wss.clients.forEach(function each(client) {
+            if(client.readyState === WebSocket.OPEN) {
+                client.send(data);
+            }
+        });
     };
 
     wss.on('connection', function connection(ws) {
-        console.log('connection open');
-        connections.push(ws);
+        //console.log('connection open');
+        //connections.push(ws);
         ws.on('message', function incoming(data) {
             //console.log('gcp', data);
             var cmdObj = JSON.parse(data);
@@ -77,7 +85,9 @@ module.exports.GCPServer = function(commandLink) {
                                         "guid" : cmdObj.guid,
                                         "arguments" : [obj]
                                     };
-                                    ws.send(JSON.stringify(response, jsonReplacer));
+                                    var data = JSON.stringify(response, jsonReplacer);
+                                    //console.log(data);
+                                    ws.send(data);
                                 });
                                 commandLink[obj].apply(commandLink, cmdObj.arguments);
                                 return;
@@ -87,6 +97,10 @@ module.exports.GCPServer = function(commandLink) {
                     console.log("WARNING: Client requested command '" + cmdObj.name + "' but it was not found in the CommandLink.");
                 }
             }
+        });
+
+        ws.on('error', function error(err) {
+            console.log('websocket error', err);
         });
     });
 };
