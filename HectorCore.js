@@ -141,36 +141,36 @@ var AllConnections = {};
 module.exports.AllConnections = AllConnections;
 
 
-if (!Object.prototype.watch)
-Object.prototype.watch = function (prop, handler) {
-    var oldval = this[prop], newval = oldval,
+//if (!Object.prototype.watch)
+function watch (obj, prop, handler) {
+    var oldval = obj[prop], newval = oldval,
     getter = function () {
         return newval;
     },
     setter = function (val) {
         oldval = newval;
-        return newval = handler.call(this, prop, oldval, val);
+        return newval = handler.call(obj, prop, oldval, val);
     };
-    if (delete this[prop]) { // can't watch constants
+    if (delete obj[prop]) { // can't watch constants
         if (Object.defineProperty) // ECMAScript 5
-            Object.defineProperty(this, prop, {
+            Object.defineProperty(obj, prop, {
                 get: getter,
                 set: setter,
                 enumerable: true
             });
         else if (Object.prototype.__defineGetter__ && Object.prototype.__defineSetter__) { // legacy
-            Object.prototype.__defineGetter__.call(this, prop, getter);
-            Object.prototype.__defineSetter__.call(this, prop, setter);
+            Object.prototype.__defineGetter__.call(obj, prop, getter);
+            Object.prototype.__defineSetter__.call(obj, prop, setter);
         }
     }
 };
 
 // object.unwatch
-if (!Object.prototype.unwatch)
-Object.prototype.unwatch = function (prop) {
-    var val = this[prop];
-    delete this[prop]; // remove accessors
-    this[prop] = val;
+//if (!Object.prototype.unwatch)
+function unwatch(obj, prop) {
+    var val = obj[prop];
+    delete obj[prop]; // remove accessors
+    obj[prop] = val;
 };
 
 module.exports.IOConnection = function(parentDevice) {
@@ -187,7 +187,7 @@ module.exports.IOConnection = function(parentDevice) {
 
     var connectedToGuid = '';
 
-    this.watch('ConnectedTo', function(prop, oldval, val) {
+    watch(this, 'ConnectedTo', function(prop, oldval, val) {
         //console.log('ConnectedTo changed');
         //console.log(oldval);
         //console.log(val);
@@ -204,7 +204,7 @@ module.exports.IOConnection = function(parentDevice) {
             connectedToGuid = '';
             setTimeout(() => {
                 console.log('ConnectedTo disconnected.');
-                console.log(tobj.ConnectedTo);
+                //console.log(tobj.ConnectedTo);
                 parentDevice.ConnectionUpdated(tobj);
                 tobj.OnConnectionChanged();
             }, 0);
