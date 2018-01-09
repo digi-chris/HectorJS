@@ -1,0 +1,280 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #434343;
+    user-select: none;
+}
+
+select {
+    background: black;
+    font-family: 'Ubuntu Condensed', sans-serif;
+    font-size: 12px;
+    color: #44FF44;
+    padding: 2px;
+    border: none;
+    border-radius: 2px;
+}
+
+button {
+    background: #878787;
+    border: none;
+    border-radius: 3px;
+    font-family: 'Ubuntu Condensed', sans-serif;
+    color: #efefef;
+    font-size: 12px;
+    box-shadow: 0px 0px 2px 0px #000000;
+}
+
+button:hover {
+    background: #a5a5b5;
+    box-shadow: 0px 0px 2px 0px #000000, 0px 0px 2px 1px #878787 inset;
+}
+
+.btn-highlight {
+    background: #ccaa92;
+    box-shadow: 0px 0px 4px 1px #ffc200 inset, 0px 0px 2px 0px #000000, 0px 0px 10px rgba(255, 255, 0,0.5);
+}
+
+.btn-highlight:hover {
+    background: #eecca2;
+    box-shadow: 0px 0px 4px 1px #ffc200 inset, 0px 0px 2px 0px #000000, 0px 0px 10px rgba(255, 255, 0,0.9);
+}
+
+.btn-highlight-red {
+    background: #ee0000;
+    box-shadow: 0px 0px 4px 1px #ee0000 inset, 0px 0px 2px 0px #000000, 0px 0px 10px rgba(255, 0, 0,0.5);
+}
+
+.btn-highlight-red:hover {
+    background: #ff0000;
+    box-shadow: 0px 0px 4px 1px #ff0000 inset, 0px 0px 2px 0px #000000, 0px 0px 10px rgba(255, 0, 0,0.9);
+}
+
+.btn-highlight-red:focus {
+    outline: none;
+    box-shadow: 0px 0px 4px 1px #ff0000 inset, 0px 0px 2px 0px #000000, 0px 0px 10px rgba(255, 99, 99,0.9);
+}
+
+.btn-highlight-orange {
+    background: #eeaa00;
+    box-shadow: 0px 0px 4px 1px #eecc00 inset, 0px 0px 2px 0px #000000, 0px 0px 10px rgba(255, 0, 0,0.5);
+}
+
+.data-light {
+    width: 3px;
+    height: 3px;
+    border-radius: 5px;
+    border: #787878 1px solid;
+    margin: 4px auto 4px;
+}
+
+.data-off {
+    background-color: #000000;
+    box-shadow: 1px 1px 3px 0px #454545 inset;
+}
+
+.data-on {
+    background-color: #ff0000;
+    box-shadow: 0px 0px 2px 1px rgba(255, 200, 150, 0.5);
+}
+
+.data-on.AudioFrame-light {
+    background-color: #00ff00;
+}
+
+.option-label {
+    font-size: 12px;
+}
+
+.data-on.SyncFrame-light {
+    background-color: #ffff22;
+}
+
+.data-on.VideoFrame-light {
+    background-color: #ff0099;
+}
+
+.data-on.EncodedVideoFrame-light {
+    background-color: #aa00ff;
+}
+
+.RackContainer {
+    display: inline-block;
+    vertical-align: top;
+    border-right: #404040 solid 8px;
+    width: 507px;
+    min-width: 507px;
+    padding-left: 6px;
+}
+
+.RackDevice {
+    /* display: inline-block; */
+    margin-top: 4px;
+    margin-right: 4px;
+    border-radius: 2px;
+    background: linear-gradient(#9a9a9a 50%, #8a8a8a);
+    /* height: 150px; */
+    width: 500px;
+    border: 1px solid #878787;
+    box-shadow: 0px 0px 4px black;
+}
+
+.RackCloseButton {
+    float: right;
+    font-size: 10px;
+    color: #454545;
+    margin-top: 2px;
+    padding-right: 2px;
+}
+
+.RackCloseButton:hover {
+    color: #000000;
+}
+
+.RackLog {
+    width: 100%;
+    height: 200px;
+    background-color: white;
+    overflow-y: scroll;
+    transition: all 0.25s ease-out;
+    font-family: 'Ubuntu Mono', monospace;
+    font-size: 12px;
+}
+
+.RackArrow {
+    margin-right: 4px;
+    float: right;
+    transition: all 0.25s ease-out;
+}
+
+.RackArrow-rotated {
+    transform: rotate(180deg);
+}
+
+.RackLog-hidden {
+    height: 0px;
+    visibility: hidden;
+}
+
+.RackLog-visible {
+    height: 200px;
+    visibility: visible;
+}
+
+.RackOptions {
+    /* display: inline-flex; */
+    vertical-align: top;
+    /* width: 50%; */
+    /* height: 100%; */
+}
+
+.RackConnections {
+    /* display: inline-block; */
+    width: 100%;
+    text-align: right;
+}
+
+.RackHeader {
+    padding: 3px;
+    font-family: 'Ubuntu Mono', monospace;
+    background: linear-gradient(#888888, #777777);
+    color: #ffffff;
+}
+
+.smallText {
+    font-family: 'Ubuntu Condensed', sans-serif;
+    padding-top: 2px;
+    font-size: 11px;
+}
+
+.connection-error {
+    background-color: #ff0000;
+    box-shadow: 0px 0px 2px 1px #ff0000;
+    color: white;
+}
+
+.RackContent {
+    padding: 4px;
+}
+
+.DeviceAddButton {
+    margin-left: 4px;
+    margin-top: 1px;
+    font-size: 14px;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.Connection {
+    width: 12px;
+    height: 12px;
+    border-radius: 10px;
+    margin: 2px auto;
+    box-shadow: 0px 0px 2px #000000;
+}
+
+.RackDiv {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 222px;
+    bottom: 42px;
+    overflow: auto;
+    pointer-events: none;
+}
+
+.DeskViewDiv {
+    
+}
+
+.MonitorBar {
+    position: absolute;
+    top: 0px;
+    left: 100%;
+    height: 100%;
+    width: 222px;
+    margin-left: -222px;
+    padding: 4px;
+    box-sizing: border-box;
+    background: linear-gradient(#878787, #676767);
+    box-shadow: 1px 1px 2px #afafaf inset, 0px 0px 2px #000000;
+}
+
+.Transport {
+    margin-left: -8px;
+    padding: 6px;
+    position: fixed;
+    bottom: 0px;
+    height: 30px;
+    width: 100%;
+    background-color: #9a9a9a;
+}
+
+.Transport button {
+    font-size: 14px;
+    font-family: 'Ubuntu Mono', monospace;
+    height: 30px;
+}
+
+.button-lit {
+    background-color: #8989ff;
+}
+
+.button-lit:hover {
+    background-color: #8585ff;
+}
+
+.option-highlight {
+    border: #ff0000 1px solid;
+}
+
+#presetControls {
+    position: absolute;
+    top: 100%;
+    left: 100%;
+    margin-top: -160px;
+    margin-left: -160px;
+}
+
+#presetControls button {
+    font-size: 20px;
+    width: 30px;
+}

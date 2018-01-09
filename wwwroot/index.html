@@ -1,0 +1,320 @@
+﻿<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>HECTOR</title>
+        <meta property="og:url"                content="http://hector.direct/" />
+        <meta property="og:type"               content="website" />
+        <meta property="og:title"              content="HECTOR" />
+        <meta property="og:description"        content="Modular, multi-purpose, generic input-output systems for use in video and audio broadcasting and production studios." />
+        <meta property="og:image"              content="http://hector.direct/images/screenshots/03.png" />
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="fontawesome/css/font-awesome.min.css">
+        <link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" type='text/css'>
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:100|Raleway|Source+Sans+Pro" rel="stylesheet">
+        <style>
+            body {
+                background-color: #ffffff;
+            }
+            
+            #logodiv {
+                width: 289px;
+                height: 45px;
+                margin: 0 auto;
+                transform: scale(0.6);
+            }
+            
+            #logobar {
+                position: absolute;
+                left: 0px;
+                right: 0px;
+                top: 50%;
+                margin-top: -53px;
+                height: 45px;
+                background: black;
+                /* background: linear-gradient(to left, #878787, black 30%, black 70%, #878787); */
+                box-shadow: black 0px 0px 2px 5px;
+                padding-top: 2px;
+                padding-bottom: 2px;
+            }
+            
+            .logobar-top {
+                margin-top: 0px !important;
+                top: 0px !important;
+            }
+            
+            video#bgvid { 
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                min-width: 100%;
+                min-height: 100%;
+                width: auto;
+                height: auto;
+                z-index: -100;
+                -ms-transform: translateX(-50%) translateY(-50%);
+                -moz-transform: translateX(-50%) translateY(-50%);
+                -webkit-transform: translateX(-50%) translateY(-50%);
+                transform: translateX(-50%) translateY(-50%);
+                background: url(polina.jpg) no-repeat;
+                background-size: cover; 
+            }
+            
+            #navdiv {
+                margin-top: 6px;
+                width: 100%;
+                text-align: center;
+                background-color: rgba(0,0,0,0.5);
+                padding-top: 4px;
+                padding-bottom: 4px;
+                height: 24px;
+            }
+            
+            .navdiv-open {
+                background-color: rgba(0,0,0,0.7) !important;
+            }
+            
+            .navitem {
+                font-family: 'Montserrat', sans-serif;
+                color: white;
+                display: inline;
+                font-size: 20px;
+                padding-left: 80px;
+                padding-right: 80px;
+                cursor: pointer;
+                /*font-size: 20px;
+                display: inline;
+                margin: 10px 20px 10px 20px;
+                padding: 8px;
+                background-color: rgba(0,0,0,1);
+                border: 1px solid white;
+                box-shadow: rgba(0,0,0,1) 0px 0px 0px 3px;
+                opacity: 0.75;*/
+            }
+            
+            .navitem:hover {
+                background-color: rgba(0,0,0,0.3);
+            }
+
+            .hidden {
+                opacity: 0;
+                display: none;
+            }
+            
+            .visible {
+                opacity: 1;
+            }
+            
+            .animated {
+                transition: all 0.6s ease-in-out;
+            }
+            
+            .animated-fast {
+                transition: all 0.7s ease-in-out;
+            }
+            
+            #contentsdiv {
+                background: rgba(0,0,0,0.7);
+                position: absolute;
+            }
+            
+            .contentsdiv-closed {
+                top: 50%;
+                bottom: 50%;
+                left: 0px;
+                right: 0px;
+            }
+            
+            .contentsdiv-open {
+                top: 174px !important;
+                bottom: 0px !important;
+                left: 0px;
+                right: 0px;           
+            }
+            
+            #whatisdiv {
+                /*margin-top: 200px;*/
+                margin-left: 100px;
+                margin-right: 100px;
+                color: white;
+                font-family: 'Raleway', sans-serif;
+            }
+            
+            #gethectordiv {
+                position: absolute;
+                top: 0px;
+                margin-left: 100px;
+                margin-right: 100px;
+                font-family: 'Raleway', sans-serif;                
+            }
+            
+            li {
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .hector-screenshots {
+                display: inline-block;
+                padding-left: 5px;
+                float: right;
+                width: 333px;
+            }
+            
+            @media (max-width: 600px) {
+                #navdiv {
+                    height: 66px;
+                }
+                .navitem {
+                    display: block;
+                    padding-bottom: 20px;
+                }
+                .contentsdiv-open {
+                    top: 216px !important;
+                }
+                #whatisdiv {
+                    margin-left: 10px;
+                    margin-right: 10px;
+                }
+                #gethectordiv {
+                    margin-left: 10px;
+                    margin-right: 10px;                    
+                }
+                .hector-screenshots {
+                    display: block;
+                    width: 333px;
+                    float: none;
+                    margin: 0 auto;
+                    padding-left: 3px;
+                }
+                .whatisbody {
+                    font-size: 16px;
+                }
+            }
+
+            .viewport {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                height: 100%;
+                overflow-y: scroll;
+                border: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="logobar" class='animated logobar-top'>
+            <div id="logodiv"></div>
+            <div id="navdiv" class='animated'>
+                <div onclick='openView(0)' class='navitem'>RIG&nbsp;VIEW</div>
+                <div onclick='openView(1)' class='navitem'>SERVER&nbsp;VIEW</div>
+                <div onclick='openView(2)' class='navitem'>DESK&nbsp;VIEW</div>
+                <div onclick='openView(3)' class='navitem'>CONSOLE</div>
+            </div>
+        </div>
+        <div style="position: absolute; top: 85px; left: 0px; right: 0px; bottom: 0px;">
+            <iframe id="objRackView" src="/RigView.html" class="viewport animated"></iframe>
+            <iframe id="objServerView" src="/ServerView.html" class="viewport animated hidden"></iframe>
+            <iframe id="objDeskView" src="/DeskView.html" class="viewport animated hidden"></iframe>
+            <iframe id="objConsole" class="viewport animated hidden"></iframe>
+        </div>
+        <div id="btnRefresh" style="position: absolute; top: 61px; left: 100%; margin-left: -22px; color: white;">
+            <i class="fa fa-refresh" aria-hidden="true"></i>
+        </div>
+        <script>
+            var navdiv = document.getElementById('navdiv');
+            var images = [ '01.png', '02.png', '03.png', '04.png', '05.png', '06.png', '07.png', '08.png' ];
+            var loadedImages = [];
+            var logodiv = document.getElementById("logodiv");
+            var whatisdiv = document.getElementById("whatisdiv");
+            var gethectordiv = document.getElementById("gethectordiv");
+            var logobar = document.getElementById("logobar");
+
+            var views = [
+                document.getElementById('objRackView'),
+                document.getElementById('objServerView'),
+                document.getElementById('objDeskView'),
+                document.getElementById('objConsole')
+            ];
+
+            views[3].src = "http://" + location.hostname + ":8088/index.html"
+
+            var currentView = 0;
+            
+            function openView(viewIndex) {
+                for (var i = 0; i < views.length; i++) {
+                    if (i !== viewIndex) {
+                        views[i].classList.remove('visible');
+                        views[i].classList.add('hidden');
+                    }
+                }
+                views[viewIndex].classList.add('visible');
+                views[viewIndex].classList.remove('hidden');
+                currentView = viewIndex;
+            }
+
+            document.getElementById("btnRefresh").addEventListener("click", function (e) {
+                //for (var i = 0; i < views.length; i++) {
+                //    views[i].contentWindow.location.reload(true);
+                //}
+                views[currentView].contentWindow.location.reload(true);
+            });
+
+            function openDeskView() {
+                document.location.href = "/DeskView.html";
+            }
+
+            var loadCount = 0;
+            images.forEach(function(item) {
+                var img = new Image();
+                img.src = 'images/' + item;
+                loadedImages.push(img);
+                img.onload = function(e) {
+                    loadCount++;
+                    if(loadCount === images.length) {
+                        setTimeout(startLogoAnimation, 100);
+                        setTimeout(function() { navdiv.classList.remove('hidden'); navdiv.classList.add('visible'); }, 1100);
+                    }
+                };
+            });
+            
+            function startLogoAnimation() {
+                var logoIndex = 0;
+                var animation = setInterval(function() {
+                    setLogoAnimationIndex(logoIndex);
+                    logoIndex++;
+                    if(logoIndex === loadedImages.length) {
+                        clearInterval(animation);
+                    }
+                }, 75);
+            }
+            
+            function setLogoAnimationIndex(index) {
+                if(logodiv.firstChild) {
+                    logodiv.removeChild(logodiv.firstChild);
+                }
+                logodiv.appendChild(loadedImages[index]);
+            }
+            
+            function pulseLogo() {
+                var logoIndex = 7;
+                var indexDir = -1;
+                var animation = setInterval(function() {
+                    setLogoAnimationIndex(logoIndex);
+                    logoIndex += indexDir;
+                    if(logoIndex < 6) {
+                        indexDir = 1;
+                    }
+                    if(logoIndex === loadedImages.length) {
+                        clearInterval(animation);
+                    }
+                }, 100);
+            }
+        </script>
+    </body>
+</html>

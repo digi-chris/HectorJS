@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title><%=fullname%></title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:100|Raleway|Source+Sans+Pro" rel="stylesheet">
+    <style>
+        .plugin-name {
+            font-size: 28px;
+            font-weight: bold;
+            line-height: 2em;
+            background-color: #dedede;
+            padding-left: 10px;
+        }
+
+        .plugin-fullname {
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 2em;
+            background-color: #efefef;
+            padding-left: 10px;
+        }
+
+        .plugin-contents {
+            overflow-y: scroll;
+            position: absolute;
+            top: 92px;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+        }
+
+        .plugin-shortdesc {
+            padding: 10px;
+            font-size: 20px;
+        }
+
+        .plugin-license {
+            padding: 4px;
+            font-size: 14px;
+            display: inline-block;
+            background-color: yellow;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+            margin-bottom: 16px;
+        }
+
+        .hector-version {
+            padding: 4px;
+            font-size: 14px;
+            display: inline;
+            background-color: lightslategray;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+            margin-bottom: 16px;
+            color: white;
+        }
+
+        .plugin-longdesc {
+            padding: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .plugin-version {
+            font-weight: normal;
+        }
+
+        .table-header {
+            display: table;
+            margin-left: 20px;
+            padding-bottom: 20px;
+        }
+
+        .table-header .table-row:first-child .table-cell {
+            font-size: 13px;
+            font-weight: bold;
+            padding-top: 10px;
+        }
+
+        .table-row {
+            display: table-row;
+        }
+
+        .table-cell {
+            display: table-cell;
+            padding: 3px 5px 3px 5px;
+            font-size: 15px;
+        }
+
+        .header-2 {
+            font-weight: bold;
+            line-height: 2em;
+            padding-left: 2px;
+            padding-left: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+            background-color: #f2f2f2;
+        }
+
+        .ra {
+            text-align: right;
+        }
+
+        .download-link {
+            margin-left: 20px;
+            font-weight: bold;
+            text-decoration: none;
+            color: #0000FF;
+        }
+
+        .download-link:before {
+            color: #FF0000;
+            content: '> ';
+            font-size: 18px;
+            padding: 2px;
+        }
+
+        .plugin-fullname a {
+            color: #7000AA;
+        }
+
+        a {
+            font-weight: bold;
+            text-decoration: none;
+            color: #0000FF;
+        }
+
+        .modulelink {
+            font-weight: normal;
+            text-decoration: none;
+            color: #0000BB;
+        }
+
+        .modulelink:hover {
+            text-decoration: underline;
+        }
+
+        .plugin-tag {
+            padding: 4px;
+            border-radius: 4px;
+            background-color: #dedeff;
+            margin: 4px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .add-button {
+            font-family: 'Raleway', sans-serif;
+            float: right;
+            background: rgb(66, 184, 221);
+            border-radius: 4px;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+            color: white;
+            font-size: 16px;
+            padding: 4px 10px 4px 10px;
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="plugin-fullname"><%=fullname%> <span class="plugin-version"><%=version_major%>.<%=version_minor%>.<%=version_revision%></span><button class="add-button" onclick="rView.addNewDevice('<%=fullname%>'); hideModuleBrowser();">Add to Rack</button></div>
+    <div class="plugin-shortdesc"><%=short_description%></div>
+    <div class="header-2">Connections</div>
+    <div class="table-header">
+        <div class="table-row"><div class="table-cell">Name</div><div class="table-cell">Type</div><div class="table-cell">Data&nbsp;Type</div><div class="table-cell">Description</div></div>
+        <%connections_json%><div class="table-row"><div class="table-cell ra"><%==Key%></div><div class="table-cell"><%==Type%></div><div class="table-cell"><%==DataType%></div><div class="table-cell"><%==Description%></div></div><%/connections_json%>
+    </div>
+
+    <div class="header-2">Options</div>
+
+    <div class="table-header">
+        <div class="table-row"><div class="table-cell">Name</div><div class="table-cell">Data&nbsp;Type</div><div class="table-cell">Description</div></div>
+        <%options_json%><div class="table-row"><div class="table-cell ra"><%==Key%></div><div class="table-cell"><%==Type%></div><div class="table-cell"><%==Description%></div></div><%/options_json%>
+    </div>
+
+    <div class="header-2">Description</div>
+    <div class="plugin-longdesc"><%=long_description%></div>
+    <div class="header-2">Tags</div>
+    <div class="plugin-longdesc"><%tags%><div class="plugin-tag"><%==Value%></div><%/tags%></div>
+</body>
+</html>

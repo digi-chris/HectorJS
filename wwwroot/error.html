@@ -1,0 +1,187 @@
+﻿<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>HECTOR - 404 NOT FOUND</title>
+        <meta property="og:url"                content="http://hector.direct/" />
+        <meta property="og:type"               content="website" />
+        <meta property="og:title"              content="HECTOR" />
+        <meta property="og:description"        content="Modular, multi-purpose, generic input-output systems for use in video and audio broadcasting and production studios." />
+        <meta property="og:image"              content="http://hector.direct/images/screenshots/03.png" />
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:100|Raleway|Source+Sans+Pro" rel="stylesheet">
+        <style>
+            body {
+                background-color: #ffffff;
+            }
+            
+            #logobar {
+                position: absolute;
+                left: 0px;
+                right: 0px;
+                top: 50%;
+                margin-top: -200px;
+            }
+            
+            .logobar-top {
+                margin-top: 0px !important;
+                top: 0px !important;
+            }
+            
+            video#bgvid { 
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                min-width: 100%;
+                min-height: 100%;
+                width: auto;
+                height: auto;
+                z-index: -100;
+                -ms-transform: translateX(-50%) translateY(-50%);
+                -moz-transform: translateX(-50%) translateY(-50%);
+                -webkit-transform: translateX(-50%) translateY(-50%);
+                transform: translateX(-50%) translateY(-50%);
+                background-size: cover; 
+            }
+            
+            #navdiv {
+                width: 100%;
+                text-align: center;
+                background-color: rgba(0,0,0,0.5);
+                height: 400px;
+            }
+            
+            .navdiv-open {
+                background-color: rgba(0,0,0,0.7) !important;
+            }
+            
+            .navitem {
+                font-family: 'Montserrat', sans-serif;
+                color: white;
+                font-size: 20px;
+                cursor: pointer;
+                /*font-size: 20px;
+                display: inline;
+                margin: 10px 20px 10px 20px;
+                padding: 8px;
+                background-color: rgba(0,0,0,1);
+                border: 1px solid white;
+                box-shadow: rgba(0,0,0,1) 0px 0px 0px 3px;
+                opacity: 0.75;*/
+            }
+            
+            .navitem a {
+                color: white;
+                text-decoration: none;
+            }
+            
+            .statusmessage {
+                font-family: 'Montserrat', sans-serif;
+                font-weight: bold;
+                color: white;
+                display: block;
+                font-size: 40px;
+                /*font-size: 20px;
+                display: inline;
+                margin: 10px 20px 10px 20px;
+                padding: 8px;
+                background-color: rgba(0,0,0,1);
+                border: 1px solid white;
+                box-shadow: rgba(0,0,0,1) 0px 0px 0px 3px;
+                opacity: 0.75;*/
+            }
+            
+            .hidden {
+                opacity: 0;
+            }
+            
+            .visible {
+                opacity: 1;
+            }
+            
+            .animated {
+                transition: all 0.6s ease-in-out;
+            }
+            
+            .animated-fast {
+                transition: all 0.7s ease-in-out;
+            }
+            
+            #contentsdiv {
+                background: rgba(0,0,0,0.7);
+                position: absolute;
+            }
+            
+            .contentsdiv-closed {
+                top: 50%;
+                bottom: 50%;
+                left: 0px;
+                right: 0px;
+            }
+            
+            .contentsdiv-open {
+                top: 174px !important;
+                bottom: 0px !important;
+                left: 0px;
+                right: 0px;           
+            }
+            
+            #whatisdiv {
+                /*margin-top: 200px;*/
+                margin-left: 100px;
+                margin-right: 100px;
+                color: white;
+                font-family: 'Raleway', sans-serif;
+            }
+            
+            #gethectordiv {
+                position: absolute;
+                top: 0px;
+                margin-left: 100px;
+                margin-right: 100px;
+                font-family: 'Raleway', sans-serif;                
+            }
+            
+            li {
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .hector-screenshots {
+                display: inline-block;
+                padding-left: 5px;
+                float: right;
+                width: 333px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="bg" style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; background-size: cover; background-position: center;">
+            <!--<video playsinline autoplay muted loop src="videos/vhs-glitch-tiny.mp4" id="bgvid"></video>-->
+        </div>
+        <div id="logobar" class='animated'>
+            <!--<div id="logodiv"></div>-->
+            <div id="navdiv" class='animated hidden'>
+                <div class='statusmessage' style='position: absolute; top: 50%; width: 100%; margin-top: -30px; text-align: center;'>404 NOT FOUND</div>
+                <div class='navitem' style='position: absolute; top: 50%; width: 100%; text-align: center; margin-top: 30px;'><a href='/index.html'>HOME</a></div>
+            </div>
+        </div>
+        <script>
+            var tapes = ['glitch-bars.gif', 'please-rewind.gif', 'startrek.gif', 'vhs-static.gif', 'vhs-blue.gif', 'vhs-play.gif', 'finger-click.gif', 'vhs-tracking.gif', 'vhs-scifi.gif', 'vhs-scifi-2.gif', 'tv-programme.gif', 'vhs-manga.gif', 'network-button.gif'];
+            if (Math.random() > 0.25) {
+                document.getElementById("bg").style.backgroundImage = "url('/videos/static.gif')";
+            }
+            else {
+                document.getElementById("bg").style.backgroundImage = "url('/videos/" + tapes[Math.round(Math.random() * (tapes.length - 1))] + "')";
+            }
+
+            var navdiv = document.getElementById('navdiv');
+            setTimeout(function() { navdiv.classList.remove('hidden'); navdiv.classList.add('visible'); }, 1);
+        </script>
+    </body>
+</html>
