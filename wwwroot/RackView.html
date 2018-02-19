@@ -302,7 +302,7 @@
             
             var hostname = getQueryString("host");
             if(!hostname) {
-                hostname = "localhost";
+                hostname = location.hostname; //"localhost";
             }
             var rigName = getQueryString("rig");
             var rView = new RackView(hostname, "Rack", document.getElementById('RackDiv'), null, rigName);

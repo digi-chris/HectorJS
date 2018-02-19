@@ -1222,21 +1222,24 @@ function RackView(serverAddress, rackType, rackDOMContainer, serverListCallback,
             //console.log("Option updated!");
             //console.log(option);
             var cOption = optionList[option.guid];
-            option.DOMObject = cOption.DOMObject;
-            option.ParentDevice = cOption.ParentDevice;
-            option.codebehind = cOption.codebehind;
-            
-            if(option.Highlight) {
-                option.DOMObject.classList.add('control-highlight');
-            }
-            else {
-                option.DOMObject.classList.remove('control-highlight');
-            }
-            //console.log(option.DOMObject);
 
-            if(option.codebehind) {
-                if(option.codebehind.setValue) {
-                    option.codebehind.setValue(option.Value, true);
+            if(cOption) {
+                option.DOMObject = cOption.DOMObject;
+                option.ParentDevice = cOption.ParentDevice;
+                option.codebehind = cOption.codebehind;
+
+                if(option.Highlight) {
+                    option.DOMObject.classList.add('control-highlight');
+                }
+                else {
+                    option.DOMObject.classList.remove('control-highlight');
+                }
+                //console.log(option.DOMObject);
+
+                if(option.codebehind) {
+                    if(option.codebehind.setValue) {
+                        option.codebehind.setValue(option.Value, true);
+                    }
                 }
             }
         },

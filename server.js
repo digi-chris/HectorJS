@@ -19,6 +19,7 @@ var Hector = function() {
         if(!tobj.Devices[rigDevice.guid]) {
             tobj.Devices[rigDevice.guid] = [];
             rigDevice.DeviceUpdated = deviceUpdated;
+            rigDevice.OptionUpdated = optionUpdated;
             tobj.RigDevices.push(rigDevice);
 
             return rigDevice;
@@ -34,6 +35,7 @@ var Hector = function() {
             dev.ConnectionUpdated = connUpdated;
             dev.DataArrived = dataArrived;
             dev.DeviceUpdated = deviceUpdated;
+            dev.OptionUpdated = optionUpdated;
             return dev;
         }
 
@@ -117,6 +119,10 @@ var dataArrived = function(connection) {
 
 var deviceUpdated = function(device, updateInfo) {
     hectorGCP.SendMessage("DeviceUpdate", [device, updateInfo]);
+};
+
+var optionUpdated = function(option) {
+    hectorGCP.SendMessage("OptionUpdate", [option]);
 };
 
 function ScanDevices(path) {

@@ -1,5 +1,6 @@
 const uuidv1 = require('uuid/v1');
 const watchjs = require('watchjs');
+var AllDevices = {};
 
 var IODevice = function() {
     var tobj = this;
@@ -19,6 +20,8 @@ var IODevice = function() {
 
     this.Tags = [];
     this.guid = uuidv1();
+
+    AllDevices[this.guid] = this;
 
     this.DeviceType = '';
 
@@ -43,7 +46,24 @@ var IODevice = function() {
     this.OptionUpdated = function() {
         // should be overridden
     };
-    
+
+    this.SetOption = function(optionName, optionValue) {
+        // TODO: See C# version version for 'animationStarting' parameter
+        if(tobj.Options[optionName]) {
+            var cancelChange = false;
+            if(tobj.Options[optionName].OnValueChanging)
+                tobj.Options[optionName].OnValueChanging(tobj.Options[optionName], optionValue);
+
+            if (!cancelChange) {
+                tobj.Options[optionName].SetValue(optionValue);
+                // TODO: Do we need to convert float values, as per C# version?
+            }
+
+            if(tobj.Options[optionName].OnValueChanged)
+                tobj.Options[optionName].OnValueChanged(tobj.Options[optionName]);
+        }
+    };
+
     this.ConnectionUpdated = function(connection) {
         // should be overridden
     };
@@ -126,6 +146,23 @@ var IOOption = function(dataType, value, parent, preferredControl) {
     this._parentDevice = parent;
     this.Highlight = false;
 
+    this.SetValue = function(value, dontUpdateClients) {
+        console.log("Setting option value to '" + value + "'");
+        if(tobj.DataType === "list") {
+            for(var i = 0; i < tobj.Data.length; i++) {
+                if(tobj.Data[i] === value) {
+                    tobj.Value = i + '';
+                }
+            }
+        } else {
+            tobj.Value = value;
+        }
+
+        if(!dontUpdateClients) {
+            parent.OptionUpdated(tobj);
+        }
+    };
+
     watchjs.watch(tobj, 'Highlight', function() {
         console.log('Highlight changed.');
         parent.OptionUpdated(tobj);
@@ -139,7 +176,7 @@ const COLLECTOR = 1;
 var AllConnections = {};
 
 module.exports.AllConnections = AllConnections;
-
+module.exports.AllDevices = AllDevices;
 
 //if (!Object.prototype.watch)
 function watch (obj, prop, handler) {

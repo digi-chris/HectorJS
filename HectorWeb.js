@@ -53,6 +53,7 @@ module.exports.WebServer = function(listenPort) {
             }
         });
     }).listen(listenPort);
+    console.log('HectorWeb listening on port ' + listenPort);
 };
 
 function checkMatch(match, callback) {

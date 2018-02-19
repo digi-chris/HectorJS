@@ -89,7 +89,13 @@ module.exports.CommandLink = function(hectorDevice) {
 
     this.addDeviceToRack = function(rigName, DeviceType, callback) {
         callback(hectorDevice.AddRackDevice(rigName, DeviceType));
-    }
+    };
+
+    this.setOption = function(deviceGuid, optionName, optionValue) {
+        if(hectorDevice.HectorCore.AllDevices[deviceGuid]) {
+            hectorDevice.HectorCore.AllDevices[deviceGuid].SetOption(optionName, optionValue);
+        }
+    };
 
     /*
     this.getDeskView = function() {

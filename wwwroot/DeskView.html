@@ -134,7 +134,7 @@
             
             var hostname = getQueryString("host");
             if(!hostname) {
-                hostname = "localhost";
+                hostname = location.hostname; //"localhost";
             }
             var dView = new DeskView(hostname, "Rack", document.getElementById('RackDiv'));
             
