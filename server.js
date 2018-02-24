@@ -1,9 +1,41 @@
+var stringifier = require('stringifier');
 var fs = require('fs');
+var util = require('util');
 var comms = require('./HectorComms.js');
 var web = require('./HectorWeb.js');
 var commLink = require('./CommandLink.js');
 var HectorCore = require('./HectorCore.js');
 var _serverList = {};
+
+function jsonReplacer(key, value) {
+  if(key.startsWith("_") && !key.startsWith("__")) {
+    return undefined;
+  } else {
+    return value;
+  }
+}
+
+function copyObject(obj, depth, count) {
+  if(isNaN(count)) count = 0;
+  var newObj = {};
+  for(n in obj) {
+    if(typeof obj[n] != "object") {
+      if(Array.isArray(obj[n])) {
+        newObj[n] = [];
+        for(item of obj[n]) {
+          newObject[n].push(copyObject(item));
+        }
+      } else {
+        newObj[n] = obj[n];
+      }
+    } else {
+      if(count < depth) {
+        newObj[n] = copyObject(obj[n], depth, count + 1);
+      }
+    }
+  }
+  return newObj;
+}
 
 var Hector = function() {
     var tobj = this;
@@ -12,6 +44,81 @@ var Hector = function() {
     this.RigDevices = [];
     this.Devices = {};
     this.HectorCore = HectorCore;
+
+    this.SaveAll = function() {
+       fs.writeFile('devices.json', JSON.stringify(this.Devices, jsonReplacer), 'utf8');
+       fs.writeFile('rigs.json', JSON.stringify(this.RigDevices, jsonReplacer), 'utf8');
+    };
+
+    this.LoadAll = function() {
+        fs.readFile('devices.json', 'utf8', function(err, contents) {
+            if(err) {
+                console.log(err);
+            } else {
+                var dList = JSON.parse(contents);
+                fs.readFile('rigs.json', 'utf8', function(err, contents) {
+                    if(err) {
+                        console.log(err);
+                    } else {
+                        var rList = JSON.parse(contents);
+                        for(rDevice of rList) {
+                            // TODO: All GUIDs should persist at reload
+                            var rigDevice = tobj.NewRig(rDevice.Name);
+                            var devices = dList[rDevice.guid];
+                            for(var i = 0; i < devices.length; i++) {
+                                var dev = devices[i];
+                                console.log(dev.Name + " (" + dev.DeviceType + ")");
+                                //console.log(dev);
+                                var rackDevice = tobj.AddRackDevice(rigDevice.guid, dev.DeviceType);
+                                rackDevice.ChangeGuid(dev.guid);
+                                rackDevice.Init();
+                                for(optionName in dev.Options) {
+                                    if(dev.Options[optionName].DataType === 'list') {
+                                        rackDevice.SetOption(optionName, dev.Options[optionName].Data[dev.Options[optionName].Value]);
+                                    } else {
+                                        rackDevice.SetOption(optionName, dev.Options[optionName].Value);
+                                    }
+                                    //rackDevice.Options[optionName].SetValue(dev.Options[optionName].Value);
+                                }
+                                for(var cIndex = 0; cIndex < dev.Connections.length; cIndex++) {
+                                    rackDevice.Connections[cIndex].ChangeGuid(dev.Connections[cIndex].guid);
+                                }
+                            }
+                            // now add connections
+                            for(var i = 0; i < devices.length; i++) {
+                                var dev = devices[i];
+                                for(var cIndex = 0; cIndex < dev.Connections.length; cIndex++) {
+                                    if(dev.Connections[cIndex].ConnectedTo) {
+                                        console.log(dev.Connections[cIndex].guid + ' connected to ' + dev.Connections[cIndex].ConnectedTo.guid);
+                                        tobj.Connect(dev.Connections[cIndex].guid, dev.Connections[cIndex].ConnectedTo.guid);
+                                    }
+                                }
+                            }
+                            //console.log(devices);
+                        }
+                    }
+                });
+            }
+        });
+    };
+
+    this.Connect = function(fromConnectionGuid, toConnectionGuid) {
+        if(tobj.HectorCore.AllConnections) {
+            var fromConn = tobj.HectorCore.AllConnections[fromConnectionGuid];
+            if(toConnectionGuid === '') {
+                fromConn.ConnectedTo = null;
+                return true;
+            } else {
+                var toConn = tobj.HectorCore.AllConnections[toConnectionGuid];
+                // TODO: See more matching statements in the C# version of this code.
+                if(fromConn.FrameType === toConn.FrameType) {
+                    fromConn.ConnectedTo = toConn;
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
 
     this.NewRig = function(rigName) {
         var rigDevice = HectorCore.RigIODevice(rigName);
@@ -103,6 +210,8 @@ var Hector = function() {
             }
         }
     };
+
+    this.LoadAll();
 };
 
 var h = new Hector();

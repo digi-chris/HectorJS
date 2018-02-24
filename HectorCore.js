@@ -1,3 +1,4 @@
+const bitmapManipulation = require("bitmap-manipulation");
 const uuidv1 = require('uuid/v1');
 const watchjs = require('watchjs');
 var AllDevices = {};
@@ -30,6 +31,12 @@ var IODevice = function() {
     this.Presets = [];
 
     this.DeviceLog = 'New log started.';
+
+    this.ChangeGuid = function(newGuid) {
+        delete AllDevices[tobj.guid];
+        tobj.guid = newGuid;
+        AllDevices[tobj.guid] = tobj;
+    };
 
     this.Init = function() {
         // override in module
@@ -146,6 +153,14 @@ var IOOption = function(dataType, value, parent, preferredControl) {
     this._parentDevice = parent;
     this.Highlight = false;
 
+    this.GetValue = function() {
+        if(tobj.DataType === "list") {
+            return tobj.Data[tobj.Value];
+        } else {
+            return tobj.Value;
+        }
+    };
+
     this.SetValue = function(value, dontUpdateClients) {
         console.log("Setting option value to '" + value + "'");
         if(tobj.DataType === "list") {
@@ -222,6 +237,12 @@ module.exports.IOConnection = function(parentDevice) {
 
     AllConnections[this.guid] = this;
 
+    this.ChangeGuid = function(newGuid) {
+        delete AllConnections[tobj.guid];
+        tobj.guid = newGuid;
+        AllConnections[tobj.guid] = tobj;
+    };
+
     var connectedToGuid = '';
 
     watch(this, 'ConnectedTo', function(prop, oldval, val) {
@@ -291,3 +312,25 @@ module.exports.IOConnection = function(parentDevice) {
         // should be overridden
     };
 };
+
+class BitmapFrame {
+  constructor(width, height) {
+    this.Bitmap = new bitmapManipulation.Bitmap(width, height);
+    this.Width = width;
+    this.Height = height;
+  }
+
+  SetPixel(x, y, color) {
+    this.Bitmap.setPixel(x, y, color);
+  }
+
+  GetPixel(x, y) {
+    return this.Bitmap.getPixel(x, y);
+  }
+
+  DrawBitmap(bFrameIn, x, y) {
+    this.Bitmap.drawBitmap(bFrameIn.Bitmap, x, y);
+  }
+}
+
+module.exports.BitmapFrame = BitmapFrame;

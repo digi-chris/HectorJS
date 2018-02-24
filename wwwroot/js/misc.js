@@ -11,6 +11,11 @@ if (document.getElementById('btnPause')) {
     transportButtons.push(document.getElementById('btnPause'));
 }
 
+var btnSaveAll = document.getElementById("btnSaveAll");
+if(btnSaveAll) {
+    btnSaveAll.addEventListener('click', () => { rView.SendCommand("saveAll", []) });
+}
+
 var btnOpenTransport = document.getElementById('btnOpenTransport');
 
 if (btnOpenTransport !== null) {

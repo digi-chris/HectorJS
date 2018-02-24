@@ -11,12 +11,16 @@
   "dependencies": {
     "audio-generator": "^2.1.2",
     "audio-speaker": "^1.5.0",
+    "bitmap-manipulation": "^2.0.0",
     "bson": "^1.0.4",
     "mime-types": "^2.1.17",
+    "mono-bitmap": "0.0.2",
     "node-websocket": "^0.1.6",
     "nodejs-websocket": "^1.7.1",
+    "run-python": "^0.1.0",
     "speaker": "^0.4.0",
-    "uuid": "^3.1.0",
+    "stringifier": "^1.3.0",
+    "uuid": "^3.2.1",
     "watchjs": "0.0.0",
     "ws": "^3.3.3"
   }

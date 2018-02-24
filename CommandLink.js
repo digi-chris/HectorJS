@@ -24,6 +24,10 @@ var PageBuilder = {
 };
 
 module.exports.CommandLink = function(hectorDevice) {
+    this.saveAll = function() {
+        hectorDevice.SaveAll();
+    };
+
     this.getDeviceNames = function(callback) {
         callback(hectorDevice.deviceTypes);
     };
@@ -45,7 +49,8 @@ module.exports.CommandLink = function(hectorDevice) {
     };
 
     this.connect = function(fromConnectionGuid, toConnectionGuid, callback) {
-        if(hectorDevice.HectorCore.AllConnections) {
+        callback(hectorDevice.Connect(fromConnectionGuid, toConnectionGuid));
+        /* if(hectorDevice.HectorCore.AllConnections) {
             var fromConn = hectorDevice.HectorCore.AllConnections[fromConnectionGuid];
             if(toConnectionGuid === '') {
                 fromConn.ConnectedTo = null;
@@ -64,7 +69,7 @@ module.exports.CommandLink = function(hectorDevice) {
             }
         }
 
-        callback(false);
+        callback(false);*/
     };
 
     this.newRig = function(rigName, callback) {

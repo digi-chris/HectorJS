@@ -1,0 +1,23 @@
+var HectorCore = require(process.cwd() + '/HectorCore.js');
+
+module.exports.GraphicsGenerator = function() {
+    var objs = [];
+    var device = new HectorCore.IODevice();
+    device.Name = "GraphicsGenerator";
+    var sync = new HectorCore.IOConnection(device);
+    sync.Name = "Sync";
+    sync.ConnType = 1;
+    device.Connections.push(sync);
+
+    var graphicsOut = new HectorCore.IOConnection(device);
+    sync.Name = "Out";
+    sync.ConnType = 0;
+    device.Connections.push(graphicsOut);
+
+    var graphicsBuilder = new HectorCore.IOOption("json", getJson(), device);
+    device.Options.data = graphicsBuilder;
+
+    function getJson() {
+        return JSON.stringify(objs);
+    }
+};

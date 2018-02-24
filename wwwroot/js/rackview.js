@@ -17,7 +17,7 @@ var optionList = {};
 function addControl(obj, optionObj, thisRackDevice, r, rackSettings, rackOptions, deviceGuid) {
     var controlAdded = false;
     if(optionObj.Visibility !== 'NeverShown') {
-        if(optionObj.PreferredControl === "") {
+        if(optionObj.PreferredControl === "" || optionObj.PreferredControl === undefined) {
             optionObj.PreferredControl = optionObj.DataType;
         }
 
