@@ -81,11 +81,14 @@ class GraphicsText extends GraphicsObject {
     TextWriter.DrawText(bitmapFrame, 0, 0, this.Text, "pixel5x8", 0xffffff);
 
     var gFrame = new GraphicsFrame();
-    gFrame.Properties = this.Properties.Clone();
+    //console.log('Cloning properties (X = ' + this.Properties.X + ')');
+    //gFrame.Properties = this.Properties.Clone();
+    gFrame.Properties = Object.assign(new GraphicsObjectProperties, this.Properties);
     gFrame.BackgroundImage = bitmapFrame;
+    //console.log(gFrame.Properties.X);
 
     // TODO: We should be caching to Output, but in C# we use jsonIgnore to stop the Output property getting passed to the end user
-    console.log('GraphicsText.Draw "' + this.Text + '" complete.');
+    //console.log('GraphicsText.Draw "' + this.Text + '" complete.');
     return gFrame;
   }
 }

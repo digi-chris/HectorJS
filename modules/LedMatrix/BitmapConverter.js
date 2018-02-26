@@ -33,7 +33,7 @@ module.exports.MatrixBitmapConverter = function() {
     }
 
     bitmapIn.OnFrameArrived = function(frame) {
-        console.log('BitmapFrame in: ' + frame.Width + frame.Height);
+        //console.log('BitmapFrame in: ' + frame.Width + frame.Height);
         var outArray = new Array(matrices.length);//.fill(new MatrixFrame(mWidth, mHeight));
         for(var i = 0; i < outArray.length; i++) {
             outArray[i] = new MatrixFrame(mWidth, mHeight);

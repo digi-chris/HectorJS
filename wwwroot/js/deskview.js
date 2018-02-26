@@ -860,6 +860,13 @@ function DeskView(serverAddress, rackType, rackDOMContainer, serverListCallback)
                 option.ParentDevice = cOption.ParentDevice;
                 option.codebehind = cOption.codebehind;
 
+                if (option.Public) {
+                    option.DOMObject.classList.add('control-public');
+                }
+                else {
+                    option.DOMObject.classList.remove('control-public');
+                }
+
                 if(option.Highlight) {
                     option.DOMObject.classList.add('control-highlight');
                 }

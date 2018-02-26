@@ -118,6 +118,15 @@ button:hover {
     box-shadow: 0px 0px 4px black;
 }
 
+.RackHeaderTitle {
+    display: inline-block;
+}
+
+.RackHeaderTitle:hover {
+    color: white;
+    box-shadow: 0px 0px 1px white;
+}
+
 .RackCloseButton {
     float: right;
     font-size: 10px;
@@ -218,7 +227,6 @@ button:hover {
     right: 222px;
     bottom: 42px;
     overflow: auto;
-    /* pointer-events: none; /* TODO: Unsure why this was set here - find out? .. something to do with RigView.html clashing with RackView.html */
 }
 
 .DeskViewDiv {

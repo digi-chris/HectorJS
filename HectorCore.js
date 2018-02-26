@@ -138,10 +138,34 @@ var IODevice = function() {
 module.exports.IODevice = IODevice;
 
 module.exports.RigIODevice = function(name) {
+    var _deviceList;
     var device = new IODevice();
     device.Name = name;
     var rigLink = new IOOption('link', '/RackView.html?rig=' + device.guid, device, 'link');
     device.Options['View Rig'] = rigLink;
+    Object.defineProperty(device, 'Connections', {
+        get: function() {
+            console.log("Getting connections for RigDevice...");
+            var rigConnections = [];
+            for(var i = 0; i < _deviceList.length; i++) {
+                var dev = _deviceList[i];
+                for(var j = 0; j < dev.Connections.length; j++) {
+                    console.log(dev.Connections[j]);
+                    if(dev.Connections[j]) {
+                        if(dev.Connections[j].Public) {
+                            rigConnections.push(dev.Connections[j]);
+                        }
+                    }
+                }
+           }
+           return rigConnections;
+        } 
+    });
+
+    device.SetDeviceList = function(dList) {
+        _deviceList = dList;
+    }
+
     return device;
 };
 
@@ -238,9 +262,13 @@ module.exports.IOConnection = function(parentDevice) {
     this._parentDevice = parentDevice;
     this.Public = false;
     watch(this, 'Public', function(prop, oldVal, val) {
+        console.log("Connection public changed from " + oldVal + " to " + val);
         if(oldVal !== val) {
-            tobj._parentDevice.ConnectionUpdated(tobj);
+            setTimeout(() => {
+                tobj._parentDevice.ConnectionUpdated(tobj);
+            }, 0);
         }
+        return val;
     });
 
     AllConnections[this.guid] = this;

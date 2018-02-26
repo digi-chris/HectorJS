@@ -80,8 +80,15 @@ var Hector = function() {
                                     }
                                     //rackDevice.Options[optionName].SetValue(dev.Options[optionName].Value);
                                 }
+                                
                                 for(var cIndex = 0; cIndex < dev.Connections.length; cIndex++) {
+                                    // TODO: We have a pretty bad problem with modules adding
+                                    // new connections and therefore ending up out-of-sync
+                                    // with a saved device. This needs to be sorted out.
                                     rackDevice.Connections[cIndex].ChangeGuid(dev.Connections[cIndex].guid);
+                                    if(dev.Connections[cIndex].Public) {
+                                        rackDevice.Connections[cIndex].Public = true;
+                                    }
                                 }
                             }
                             // now add connections
@@ -128,6 +135,7 @@ var Hector = function() {
             rigDevice.DeviceUpdated = deviceUpdated;
             rigDevice.OptionUpdated = optionUpdated;
             tobj.RigDevices.push(rigDevice);
+            rigDevice.SetDeviceList(tobj.Devices[rigDevice.guid]);
 
             return rigDevice;
         } else {

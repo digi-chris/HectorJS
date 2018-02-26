@@ -8,7 +8,17 @@ module.exports.GraphicsGenerator = function() {
     var sync = new HectorCore.IOConnection(device);
     sync.Name = "Sync";
     sync.ConnType = 1;
+    var dataIn = new HectorCore.IOConnection(device);
+    dataIn.Name = "Data In";
+    dataIn.ConnType = 1;
+
     device.Connections.push(sync);
+
+    var _data = {
+        hours : "17",
+        minutes : "28",
+        seconds : "35"
+    };
 
     sync.OnFrameArrived = (frame) => {
         var gOut = new Graphics.GraphicsFrame();
@@ -24,10 +34,18 @@ module.exports.GraphicsGenerator = function() {
         return true;
     };
 
+    dataIn.OnFrameArrived = (frame) => {
+        _data = frame;
+        buildObjectList();
+        sync.FrameArrived({});
+    };
+
     var graphicsOut = new HectorCore.IOConnection(device);
     graphicsOut.Name = "Out";
     graphicsOut.ConnType = 0;
     device.Connections.push(graphicsOut);
+
+    device.Connections.push(dataIn);
 
     var gText = new Graphics.GraphicsText("testing");
     objs.push(gText);
@@ -35,17 +53,28 @@ module.exports.GraphicsGenerator = function() {
     var graphicsBuilder = new HectorCore.IOOption("json", getJson(), device);
     device.Options.data = graphicsBuilder;
     graphicsBuilder.OnValueChanged = function(option) {
-        // TODO: add MetaData transforms
-        var value = option.Value;
+        buildObjectList();
+
+        //option.Value = getJson();
+    }
+
+    function buildObjectList() {
+        var value = graphicsBuilder.Value + '';
+        for(var obj in _data) {
+            value = value.replace('%' + obj + '%', _data[obj]);
+        }
+
         var newObjs = JSON.parse(value);
         if(newObjs) {
             var replacementList = [];
             for(var i = 0; i < newObjs.length; i++) {
                 var newObj = newObjs[i];
                 var currentObject = findObject(newObj.guid, objs);
+                //console.log("X: " + newObj.Properties.X);
                 if(currentObject !== null) {
                     var rObj = Object.assign(new Graphics.GraphicsText, newObj);
-                    rObj.Properties = Object.assign(new Graphics.GraphicsObjectProperties, rObj.Properties);
+                    rObj.Properties = Object.assign(new Graphics.GraphicsObjectProperties, newObj.Properties);
+                    //console.log("X now: " + rObj.Properties.X);
                     replacementList.push(rObj);
                     // TODO: needs to allow animation with 'gotoObject'
                     //replacementList.push(currentObject);
@@ -54,14 +83,12 @@ module.exports.GraphicsGenerator = function() {
                     //...
                 } else {
                     var rObj = Object.assign(new Graphics.GraphicsText, newObj);
-                    rObj.Properties = Object.assign(new Graphics.GraphicsObjectProperties, rObj.Properties);
+                    rObj.Properties = Object.assign(new Graphics.GraphicsObjectProperties, newObj.Properties);
                     replacementList.push(rObj);
                 }
             }
 
             objs = replacementList;
-
-            option.Value = getJson();
         }
     }
 

@@ -46,6 +46,7 @@ module.exports.GraphicsRenderer = function() {
             for(var i = 0; i < frame.Children.length; i++) {
                 var gFrame = frame.Children[i];
                 if(gFrame.BackgroundImage) {
+                    //console.log('Drawing at ' + gFrame.Properties.X + ', ' + gFrame.Properties.Y);
                     bitmapFrame.DrawBitmap(gFrame.BackgroundImage, gFrame.Properties.X, gFrame.Properties.Y);
                 }
             }

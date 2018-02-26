@@ -6,9 +6,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src='js/contextMenu.js' type='text/javascript'></script>
         <link rel="stylesheet" href="css/contextmenu.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/styles.css" type="text/css" charset="utf-8" />
         <link href="https://fonts.googleapis.com/css?family=Open+Sans|Ubuntu|Ubuntu+Condensed|Ubuntu+Mono" rel="stylesheet">
         <link rel="stylesheet" href="fontawesome/css/font-awesome.min.css">
-        <link rel="stylesheet" href="css/styles.css">
         <style>
             body {
                 font-family: 'Open Sans', sans-serif;
@@ -144,6 +144,27 @@
             
             .RackContent {
                 padding: 4px;
+            }
+
+            .RackHeaderTitle {
+                display: inline-block;
+            }
+
+                .RackHeaderTitle:hover {
+                    color: white;
+                    box-shadow: 0px 0px 1px white;
+                }
+
+            .RackCloseButton {
+                float: right;
+                font-size: 10px;
+                color: #454545;
+                margin-top: 2px;
+                padding-right: 2px;
+            }
+
+            .RackCloseButton:hover {
+                color: #000000;
             }
             
             .DeviceAddButton {

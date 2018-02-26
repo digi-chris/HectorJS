@@ -45,6 +45,7 @@ module.exports.CommandLink = function(hectorDevice) {
     };
 
     this.setConnectionPublic = function(connectionGuid, optionPublic, callback) {
+        optionPublic = optionPublic + '';
         var setPublic = (optionPublic.toLowerCase() == 'true');
         if(hectorDevice.HectorCore.AllConnections[connectionGuid]) {
             var conn = hectorDevice.HectorCore.AllConnections[connectionGuid];

@@ -17,15 +17,17 @@ var optionList = {};
 function addControl(obj, optionObj, thisRackDevice, r, rackSettings, rackOptions, deviceGuid) {
     var controlAdded = false;
     if(optionObj.Visibility !== 'NeverShown') {
-        if(optionObj.PreferredControl === "" || optionObj.PreferredControl === undefined) {
+        if (optionObj.PreferredControl === "" || optionObj.PreferredControl === undefined) {
             optionObj.PreferredControl = optionObj.DataType;
         }
 
         console.log('PreferredControl ', optionObj.PreferredControl);
         optionObj.ParentDevice = r.guid;
         optionList[optionObj.guid] = optionObj;
-        if(optionObj.DataType !== 'list') {
-            rackSettings.style.display = '';
+        if (optionObj.DataType !== 'list') {
+            if (rackSettings) {
+                rackSettings.style.display = '';
+            }
         }
 
         if(optionObj.PreferredControl && optionObj.PreferredControl !== "") {
@@ -51,6 +53,13 @@ function addControl(obj, optionObj, thisRackDevice, r, rackSettings, rackOptions
                 newControl.setAttribute('data-option', 'true');
                 newControl.setAttribute('data-device-guid', deviceGuid);
                 newControl.setAttribute('data-option-name', obj);
+
+                if (optionObj.Public) {
+                    newControl.classList.add('control-public');
+                }
+                else {
+                    newControl.classList.remove('control-public');
+                }
 
                 newControl.addEventListener('contextmenu', function(ev) {
                     ev.preventDefault();
@@ -83,6 +92,14 @@ function addControl(obj, optionObj, thisRackDevice, r, rackSettings, rackOptions
                                     pNode = pNode.parentNode;
                                 }
                                 rView.SendCommand('addOptionToDesk', [deviceGuid, pNode.getAttribute('data-option-name')]);
+                            }
+                        },
+                        {
+                            text: optionObj.Public ? "Set option private" : "Set option public",
+                            onclick: function (e) {
+                                console.log("Toggle option public. Current value is " + optionObj.Public + ".");
+                                var setPublic = !optionObj.Public;
+                                rView.SendCommand('setOptionPublic', [optionObj.guid, setPublic]);
                             }
                         }
                     ], ev.clientX, ev.clientY);
@@ -117,8 +134,12 @@ function addControl(obj, optionObj, thisRackDevice, r, rackSettings, rackOptions
                     
                     codebehind.setValue(optionObj.Value);
                     var label = getElementByDataname(newControl, 'label');
-                    if(label) {
-                        label.innerText = obj;
+                    if (label) {
+                        if (optionObj.Label) {
+                            label.innerText = optionObj.Label;
+                        } else {
+                            label.innerText = obj;
+                        }
                     }
 
                     codebehind.valueCallback = function() {
@@ -308,6 +329,71 @@ function RackView(serverAddress, rackType, rackDOMContainer, serverListCallback,
 
     this.connect = connect;
 
+    function addConnection(connectionObj, parentDevice) {
+        var rackConnectionsDiv = parentDevice.ConnectionsDOMElement;
+
+        console.log('Connection:', item);
+        var item = connectionObj;
+        var connectionType;
+        if (item.ConnType === 0) {
+            connectionType = "Generator";
+        } else if (item.ConnType === 1) {
+            connectionType = "Collector";
+        }
+
+        var newConnection = document.getElementById(connectionType + "Connection").cloneNode(true);
+        newConnection.setAttribute('guid', item.guid);
+        rackConnectionsDiv.appendChild(newConnection);
+        item.DOMObject = newConnection;
+        item.ParentDevice = parentDevice.guid;
+        connectionList[item.guid] = item;
+
+        var connNameDiv = getElementByDataname(newConnection, 'connectionName');
+        if (connNameDiv) {
+            connNameDiv.innerText = item.Name;
+        }
+
+        newConnection.addEventListener('contextmenu', function (ev) {
+            ev.preventDefault();
+            console.log(ev);
+            _contextMenu.ShowMenu([
+                {
+                    text: connectionList[item.guid].Public ? "Set connection private" : "Set connection public",
+                    onclick: function (e) {
+                        var connection = connectionList[item.guid];
+                        console.log("Toggle connection public. Current value is " + connection.Public + ".");
+                        var setPublic = !connection.Public;
+                        rView.SendCommand('setConnectionPublic', [connection.guid, setPublic]);
+                    }
+                }
+            ], ev.clientX, ev.clientY);
+
+            return false;
+        });
+
+        // check to see if we need to add a monitor for this frame type, and add if necessary
+        /*if(!monitorsAdded[item.FrameType]) {
+            monitorsAdded[item.FrameType] = true;
+    
+            var Monitors = document.getElementById("Monitors");
+            for(var i = 0; i < Monitors.children.length; i++) {
+                var mon = Monitors.children[i];
+                if(mon.getAttribute("data-frametype") === item.FrameType) {
+                    var newMonitor = mon.cloneNode(true);
+                    var img = new Image();
+                    //img.src = 'http://localhost:' + (1001 + deviceIndex) + '/';
+                    img.src = 'http://localhost:1001/' + deviceIndex;
+                    newMonitor.appendChild(img);
+                    rackOptions.appendChild(newMonitor);
+                }
+            }
+        }*/
+
+        CommandLink.ConnectionUpdate(item);
+        applyCmdLink(this, "ConnectionUpdate", item);
+    }
+
+
     function checkConnections(forceReconnect) {
         checkCanvasSize();
         ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -382,8 +468,55 @@ function RackView(serverAddress, rackType, rackDOMContainer, serverListCallback,
 
         var headerDiv = document.createElement('div');
         headerDiv.className = "RackHeader";
-        headerDiv.innerText = r.Name;
+        //headerDiv.innerText = r.Name;
         rackDiv.appendChild(headerDiv);
+
+        var headerTitle = document.createElement('div');
+        headerTitle.className = "RackHeaderTitle";
+        headerTitle.innerText = r.Name;
+
+        headerDiv.appendChild(headerTitle);
+
+        headerTitle.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        headerTitle.addEventListener('mouseup', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        headerTitle.addEventListener("dblclick", function (e) {
+            console.log("headerTitle click");
+            headerTitle.setAttribute("contenteditable", "true");
+            setTimeout(function () {
+                headerTitle.focus();
+                r = document.createRange();
+                r.selectNodeContents(headerTitle);
+                var s = window.getSelection();
+                s.removeAllRanges();
+                s.addRange(r);
+            }, 0);
+        });
+
+        const KEYCODE_ENTER = 13;
+        const KEYCODE_ESC = 27;
+
+        headerTitle.addEventListener("keydown", function (e) {
+            switch (e.keyCode) {
+                case KEYCODE_ENTER:
+                    e.preventDefault();
+                    headerTitle.removeAttribute("contenteditable");
+                    rView.SendCommand("setDeviceName", [thisRackDevice.guid, headerTitle.innerText]);
+                    break;
+                case KEYCODE_ESC:
+                    e.preventDefault();
+                    headerTitle.innerText = thisRackDevice.Name;
+                    headerTitle.removeAttribute("contenteditable");
+                    break;
+            }
+        });
 
         var deviceDragging = false;
         var startX = 0;
@@ -533,6 +666,10 @@ function RackView(serverAddress, rackType, rackDOMContainer, serverListCallback,
         rackContent.appendChild(rackConnections);
 
         rackSettings.style.display = "none";
+
+        rackDeviceList[r.guid].ConnectionsDOMElement = rackConnections;
+        rackDeviceList[r.guid].OptionsDOMElement = rackOptions;
+        rackDeviceList[r.guid].SettingsDOMElement = rackSettings;
 
         for(var obj in r.Options) {
             var controlAdded = false;
@@ -710,61 +847,7 @@ function RackView(serverAddress, rackType, rackDOMContainer, serverListCallback,
 
         if(Array.isArray(r.Connections)) {
             r.Connections.forEach(function(item) {
-                //console.log('Connection:', item);
-                var connectionType;
-                if(item.ConnType === 0) {
-                    connectionType = "Generator";
-                } else if(item.ConnType === 1) {
-                    connectionType = "Collector";
-                }
-
-                var newConnection = document.getElementById(connectionType + "Connection").cloneNode(true);
-                newConnection.setAttribute('guid', item.guid);
-                rackConnections.appendChild(newConnection);
-                item.DOMObject = newConnection;
-                item.ParentDevice = r.guid;
-                connectionList[item.guid] = item;
-
-                var connNameDiv = getElementByDataname(newConnection, 'connectionName');
-                if(connNameDiv) {
-                    connNameDiv.innerText = item.Name;
-                }
-
-                newConnection.addEventListener('contextmenu', function (ev) {
-                    ev.preventDefault();
-                    console.log(ev);
-                    _contextMenu.ShowMenu([
-                        {
-                            text: "Connect to Rig header",
-                            onclick: function (e) {
-                                rView.SendCommand('addConnectionToRig', [item.guid]);
-                            }
-                        }
-                    ], ev.clientX, ev.clientY);
-
-                    return false;
-                });
-
-                // check to see if we need to add a monitor for this frame type, and add if necessary
-                /*if(!monitorsAdded[item.FrameType]) {
-                    monitorsAdded[item.FrameType] = true;
-
-                    var Monitors = document.getElementById("Monitors");
-                    for(var i = 0; i < Monitors.children.length; i++) {
-                        var mon = Monitors.children[i];
-                        if(mon.getAttribute("data-frametype") === item.FrameType) {
-                            var newMonitor = mon.cloneNode(true);
-                            var img = new Image();
-                            //img.src = 'http://localhost:' + (1001 + deviceIndex) + '/';
-                            img.src = 'http://localhost:1001/' + deviceIndex;
-                            newMonitor.appendChild(img);
-                            rackOptions.appendChild(newMonitor);
-                        }
-                    }
-                }*/
-                
-                CommandLink.ConnectionUpdate(item);
-                applyCmdLink(this, "ConnectionUpdate", item);
+                addConnection(item, r);
             });
         };
         
@@ -912,6 +995,7 @@ function RackView(serverAddress, rackType, rackDOMContainer, serverListCallback,
             if (rigName && rackType === "Rack") {
                 args.push(rigName);
             }
+            console.log('get' + rackType + 'Devices', args);
             SendCommand("get" + rackType + "Devices", args, function(r) {
                 console.log('devices:');
                 console.log(r);
@@ -1175,6 +1259,12 @@ function RackView(serverAddress, rackType, rackDOMContainer, serverListCallback,
                     connName.classList.remove("connection-error");
                 }
 
+                if (connection.Public) {
+                    connection.DOMObject.classList.add('connection-public');
+                } else {
+                    connection.DOMObject.classList.remove('connection-public');
+                }
+
                 var mustCheckConnections = false;
 
                 if(connectionList[connection.guid].ConnectedTo !== connection.ConnectedTo) {
@@ -1222,13 +1312,20 @@ function RackView(serverAddress, rackType, rackDOMContainer, serverListCallback,
             //console.log("Option updated!");
             //console.log(option);
             var cOption = optionList[option.guid];
-
-            if(cOption) {
+            if (cOption) {
                 option.DOMObject = cOption.DOMObject;
                 option.ParentDevice = cOption.ParentDevice;
                 option.codebehind = cOption.codebehind;
+                cOption.Public = option.Public;
 
-                if(option.Highlight) {
+                if (option.Public) {
+                    option.DOMObject.classList.add('control-public');
+                }
+                else {
+                    option.DOMObject.classList.remove('control-public');
+                }
+
+                if (option.Highlight) {
                     option.DOMObject.classList.add('control-highlight');
                 }
                 else {
@@ -1236,8 +1333,8 @@ function RackView(serverAddress, rackType, rackDOMContainer, serverListCallback,
                 }
                 //console.log(option.DOMObject);
 
-                if(option.codebehind) {
-                    if(option.codebehind.setValue) {
+                if (option.codebehind) {
+                    if (option.codebehind.setValue) {
                         option.codebehind.setValue(option.Value, true);
                     }
                 }
@@ -1254,6 +1351,35 @@ function RackView(serverAddress, rackType, rackDOMContainer, serverListCallback,
                 console.log("Device Updated: " + updateInfo);
                 console.log(device);
                 console.log(rackDeviceList[device.guid]);
+
+                if (updateInfo === "OptionListChanged") {
+                    while (rackDeviceList[device.guid].OptionsDOMElement.firstChild) {
+                        rackDeviceList[device.guid].OptionsDOMElement.removeChild(rackDeviceList[device.guid].OptionsDOMElement.firstChild);
+                    }
+
+                    for (var optName in device.Options) {
+                        var option = device.Options[optName];
+                        addControl(optName, option, rackDeviceList[device.guid], rackDeviceList[device.guid], rackDeviceList[device.guid].SelectDOMElement, rackDeviceList[device.guid].OptionsDOMElement, device.guid);
+                    }
+                    /*for (var optName in device.Options) {
+                        var option = device.Options[optName];
+                        if (!optionList[option.guid]) {
+                            console.log("Option " + optName + " doesn't exist - adding it.");
+                            addControl(optName, option, rackDeviceList[device.guid], rackDeviceList[device.guid], rackDeviceList[device.guid].SelectDOMElement, rackDeviceList[device.guid].OptionsDOMElement, device.guid);
+                        }
+                    }*/
+                } else if (updateInfo === "ConnectionListChanged") {
+                    console.log('ConnectionListChanged!');
+                    while (rackDeviceList[device.guid].ConnectionsDOMElement.firstChild) {
+                        rackDeviceList[device.guid].ConnectionsDOMElement.removeChild(rackDeviceList[device.guid].ConnectionsDOMElement.firstChild);
+                    }
+                    console.log(device.Connections);
+                    device.Connections.forEach(function (item) {
+                        addConnection(item, rackDeviceList[device.guid]);
+                    });
+                } else {
+                    console.log('Unknown updateInfo: ' + updateInfo);
+                }
             }
         },
         "DeviceRemoved" : function(deviceGuid) {

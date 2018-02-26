@@ -337,7 +337,7 @@ var controlCodebehind = {
         var progressbar;
 
         function uploadFile(file) {
-            console.log(tobj);
+            console.log('uploadFile', tobj);
             var guid = tobj.Device.Options[tobj.Option].guid;
             var reader = new FileReader();
             var rawData = new ArrayBuffer();
@@ -371,14 +371,14 @@ var controlCodebehind = {
                                 rawData = rawData.substr(1);
                             }
                         }
-                        rView.SendCommand("continueFileUpload", [tobj.Device.Index, guid, file.name, btoa(fileChunk)], doNextChunk);
+                        rView.SendCommand("continueFileUpload", [tobj.Device.guid, guid, file.name, btoa(fileChunk)], doNextChunk);
                         if(progressbar) {
                             var pcnt = Math.round(((filesize - rawData.length) / filesize) * 100);
                             //console.log(pcnt);
                             progressbar.style.width = pcnt + "px";
                         }
                     } else {
-                        rView.SendCommand("finishFileUpload", [tobj.Device.Index, guid, file.name]);
+                        rView.SendCommand("finishFileUpload", [tobj.Device.guid, guid, file.name]);
                     }
                 }
 
