@@ -44,6 +44,15 @@ module.exports.CommandLink = function(hectorDevice) {
         }
     };
 
+    this.setConnectionPublic = function(connectionGuid, optionPublic, callback) {
+        var setPublic = (optionPublic.toLowerCase() == 'true');
+        if(hectorDevice.HectorCore.AllConnections[connectionGuid]) {
+            var conn = hectorDevice.HectorCore.AllConnections[connectionGuid];
+            conn.Public = setPublic;
+            conn._parentDevice._parentRig.DeviceUpdated(conn._parentDevice._parentRig, "ConnectionListChanged");
+        }
+    };
+
     this.removeDeviceFromRack = function(deviceGuid) {
         hectorDevice.RemoveRackDevice(deviceGuid);
     };

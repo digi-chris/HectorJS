@@ -149,13 +149,21 @@ var Hector = function() {
         return null;
     };
 
+    this.GetRigDevice = function(rigName) {
+        for(var i = 0; i < tobj.RigDevices.length; i++) {
+            if(tobj.RigDevices[i].guid === rigName) {
+                return tobj.RigDevices[i];
+            }
+        }
+        return null;
+    };
+
     this.AddRackDevice = function(rigName, DeviceType) {
         if(Array.isArray(tobj.Devices[rigName])) {
             var dev = tobj.GetModule(DeviceType);
             if(dev !== null) {
                 tobj.Devices[rigName].push(dev);
-                // TODO: get ParentRig device (see C# version, 'AddRackDevice')
-                //dev.ParentRig
+                dev._parentRig = tobj.GetRigDevice(rigName);
                 dev.Init();
 
                 return dev;

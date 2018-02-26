@@ -22,6 +22,8 @@ var IODevice = function() {
     this.Tags = [];
     this.guid = uuidv1();
 
+    // this._parentRig (set by server)
+
     AllDevices[this.guid] = this;
 
     this.DeviceType = '';
@@ -234,6 +236,12 @@ module.exports.IOConnection = function(parentDevice) {
     this.HasData = false;
     this.LastUpdate = 0;
     this._parentDevice = parentDevice;
+    this.Public = false;
+    watch(this, 'Public', function(prop, oldVal, val) {
+        if(oldVal !== val) {
+            tobj._parentDevice.ConnectionUpdated(tobj);
+        }
+    });
 
     AllConnections[this.guid] = this;
 
