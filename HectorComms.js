@@ -1,3 +1,4 @@
+var HectorCore = require('./HectorCore.js');
 var ws = require('nodejs-websocket');
 var WebSocket = require('ws');
 var dgram = require('dgram');
@@ -160,7 +161,7 @@ function HeartbeatObject() {
     this.ipAddress = localAddress;
     this.listenPort = 1001;
     this.httpPort = 8080;
-    this.TCPPorts = [];
+    this.TCPPorts = [3001];
     this.UDPPorts = [];
     this.ServerConnections = [];
 }

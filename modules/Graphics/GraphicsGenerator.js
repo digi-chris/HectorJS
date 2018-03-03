@@ -58,11 +58,23 @@ module.exports.GraphicsGenerator = function() {
         //option.Value = getJson();
     }
 
+    function objReplacer(object, prefix, value) {
+        for(var objName in object) {
+            if(typeof object[objName] === 'object') {
+                value = objReplacer(object[objName], prefix + objName + '.', value);
+            } else {
+                value = value.replace('%' + prefix + objName + '%', object[objName]);
+            }
+        }
+        return value;
+    }
+
     function buildObjectList() {
         var value = graphicsBuilder.Value + '';
-        for(var obj in _data) {
-            value = value.replace('%' + obj + '%', _data[obj]);
-        }
+        //for(var obj in _data) {
+        //    value = value.replace('%' + obj + '%', _data[obj]);
+        //}
+        value = objReplacer(_data, '', value);
 
         var newObjs = JSON.parse(value);
         if(newObjs) {
@@ -72,7 +84,15 @@ module.exports.GraphicsGenerator = function() {
                 var currentObject = findObject(newObj.guid, objs);
                 //console.log("X: " + newObj.Properties.X);
                 if(currentObject !== null) {
-                    var rObj = Object.assign(new Graphics.GraphicsText, newObj);
+                    var rObj;
+                    switch(newObj.Type) {
+                        case "text":
+                            rObj = Object.assign(new Graphics.GraphicsText, newObj);
+                            break;
+                        case "character":
+                            rObj = Object.assign(new Graphics.GraphicsCharacter, newObj);
+                            break;
+                    }
                     rObj.Properties = Object.assign(new Graphics.GraphicsObjectProperties, newObj.Properties);
                     //console.log("X now: " + rObj.Properties.X);
                     replacementList.push(rObj);

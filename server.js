@@ -1,3 +1,6 @@
+var leb = require('leb');
+var BSON = require('bson');
+var net = require('net');
 var stringifier = require('stringifier');
 var fs = require('fs');
 var util = require('util');
@@ -14,6 +17,247 @@ function jsonReplacer(key, value) {
     return value;
   }
 }
+
+var inputConnection = net.createServer(function(socket) {
+    var buf = new BufferReader();
+    var reading = false;
+
+    socket.on('data', function(data) {
+        //console.log('DATA');
+        //console.log(data);
+        buf.AddBuffer(data);
+
+        socket.write('OK');
+        //console.log('OK');
+        
+        if(!reading) {
+            findHeader(() => {
+                console.log('Header start found');
+                var guid = buf.ReadBytes(16);
+                var frameType = buf.ReadString();
+                var framePosition = buf.ReadUint32();
+                var frameLength = buf.ReadUint32();
+                var dataLength = buf.ReadUint32();
+
+                console.log(guid);
+                console.log(frameType, framePosition, frameLength, dataLength);
+                //buf.DecodeBSON();
+
+                buf.ReadBytesAsync(frameLength, (byteArray) => {
+                    console.log('Got BSON');
+                    //console.log(byteArray);
+
+                    // TODO: This creates a copy - share the memory instead? Quicker?
+                    var buffer = Buffer.from(byteArray);
+                    var bson = new BSON();
+                    var frame = bson.deserialize(buffer);
+                    console.log(frame);
+
+                    buf.ReadBytesAsync(dataLength, (byteArray) => {
+                        console.log('Got frame data.');
+                        fs.writeFile('test.rgb', new Uint8Array(byteArray), (err) => {
+                            if(err) {
+                                console.log(err);
+                            } else {
+                                console.log('saved to disc.');
+                                var VideoDecode = new omx.VideoDecode();
+                                var VideoRender = new omx.VideoRender();
+                                omx.Component.initAll([VideoDecode, VideoRender])
+                                        .then(function () {
+                                          VideoDecode.setVideoPortFormat(omx.VIDEO_CODINGTYPE.VIDEO_CodingVendorStartUnused);
+                                          fs.createReadStream("test.rgb")
+                                                  .pipe(VideoDecode)
+                                                  .pipe(VideoRender)
+                                                  .on('finish', function () {
+                                                    console.log("Done");
+                                                    process.exit();
+                                                  });
+                                        });
+                            }
+                        });
+                    });
+                });
+            });
+        }
+    });
+
+    function findHeader(callback) {
+        reading = true;
+        var matchString = "HCTR";
+        var gotString = "";
+        while(buf.Length > 0) {
+            var nextChar = buf.ReadChar();
+            console.log('Next char: ' + nextChar);
+            if(gotString + nextChar == matchString.substring(0, gotString.length + 1)) {
+                gotString += nextChar;
+            }
+
+            if(gotString === matchString) {
+                console.log(gotString);
+                callback();
+                return;
+            }
+        }
+    }
+});
+
+class BufferReader {
+    // implements forward-only reading of multiple buffers
+    constructor() {
+        this.Buffers = [];
+        this.ReadPos = 0;
+        this.Length = 0;
+        this.ReadBytesCallbacks = [];
+    }
+
+    AddBuffer(buf) {
+        this.Buffers.push(buf);
+        this.Length += buf.length;
+
+        // check if any ReadBytes methods are waiting for more data
+        // TODO: This should be implemented across all functions, currently it only works with ReadBytesAsync
+        //       Also, it doesn't operate asynchronously here, but could do if we could ensure no clashing with future AddBuffer events
+        while(this.ReadBytesCallbacks.length > 0) {
+            var bytes = this.ReadBytes(this.ReadBytesCallbacks[0].Length);
+            if(bytes === null) {
+                break;
+            } else {
+                this.ReadBytesCallbacks.shift().Callback(bytes);
+            }
+        }
+    }
+
+    CheckBuffers() {
+        if(this.ReadPos === this.Buffers[0].length) {
+            // we need to advance to the next buffer
+            this.Buffers.shift();
+            this.ReadPos = 0;
+        }
+
+        var byteLength = 0;
+        for(var i = 0; i < this.Buffers.length; i++) {
+            byteLength += this.Buffers[i].length;
+        }
+        byteLength -= this.ReadPos;
+        this.Length = byteLength;
+    }
+
+    ReadChar() {
+        if(this.Buffers.length === 0) {
+            return null;
+        } else {
+            var char = this.Buffers[0].toString('utf8', this.ReadPos, this.ReadPos + 1);
+            this.ReadPos++;
+            this.CheckBuffers();
+            //console.log('READCHAR: ' + char);
+            return char;
+        }
+    }
+
+    ReadByte() {
+        if(this.Buffers.length === 0) {
+            return null;
+        } else {
+            var byte = this.Buffers[0].readUInt8(this.ReadPos);
+            this.ReadPos++;
+            this.CheckBuffers();
+            return byte;
+        }
+    }
+
+    ReadUint32() {
+        if(this.Length > 3) {
+            /*var bytes = [];
+            for(var i = 0; i < 4; i++) {
+                bytes.push(this.ReadByte());
+            }
+            var uint = new Uint32Array(bytes)[0];*/
+            var uint = this.Buffers[0].readUInt32LE(this.ReadPos);
+            this.ReadPos += 4;
+            this.CheckBuffers();
+            //this.ReadPos--;
+            return uint;
+        } else {
+            return null;
+        }
+    }
+
+    ReadUint16() {
+        if(this.Length > 1) {
+            var bytes = [];
+            bytes.push(this.ReadByte());
+            bytes.push(this.ReadByte());
+            var uint = new Uint16Array(bytes)[0];
+            return uint;
+        } else {
+            return null;
+        }
+    }
+
+    ReadULEB() {
+        if(this.Length > 0) {
+            var decoded = leb.decodeUInt32(this.Buffers[0], this.ReadPos);
+            console.log('Decoded:');
+            console.log(decoded.value);
+            console.log(decoded.nextIndex);
+            this.ReadPos = decoded.nextIndex;
+            return decoded.value;
+        }
+    }
+
+    ReadString() {
+        // length-prefixed string
+        var length = this.ReadULEB();
+        console.log("ReadString length = " + length);
+        if(length !== null) {
+            //this.ReadPos -= 1;
+            var string = "";
+            for(var i = 0; i < length; i++) {
+                string += this.ReadChar();
+            }
+            console.log(string.length);
+            return string;
+        } else {
+            return null;
+        }
+    }
+
+    ReadBytes(length) {
+        if(this.Length > length - 1) {
+            var bytes = [];
+            for(var i = 0; i < length; i++) {
+                bytes.push(this.ReadByte());
+            }
+            return bytes;
+        } else {
+            return null;
+        }
+    }
+
+    ReadBytesAsync(length, callback) {
+        process.nextTick(() => {
+            if(this.Length > length - 1) {
+                var bytes = [];
+                for(var i = 0; i < length; i++) {
+                    bytes.push(this.ReadByte());
+                }
+                callback(bytes);
+            } else {
+                // not enough bytes, so we need to store this up until we have enough bytes
+                this.ReadBytesCallbacks.push({ Length: length, Callback: callback });
+            }
+        });
+    }
+
+    /*DecodeBSON() {
+        var bson = new BSON();
+        var docs = [];
+        bson.deserializeStream(this.Buffers[0], this.ReadPos, 1, docs, 0);
+        console.log(docs[0]);
+    }*/
+}
+
+inputConnection.listen(3001);
 
 function copyObject(obj, depth, count) {
   if(isNaN(count)) count = 0;
@@ -78,6 +322,7 @@ var Hector = function() {
                                     } else {
                                         rackDevice.SetOption(optionName, dev.Options[optionName].Value);
                                     }
+                                    rackDevice.Options[optionName].Public = dev.Options[optionName].Public;
                                     //rackDevice.Options[optionName].SetValue(dev.Options[optionName].Value);
                                 }
                                 
@@ -91,7 +336,22 @@ var Hector = function() {
                                     }
                                 }
                             }
-                            // now add connections
+                            
+                            /*// now add connections
+                            for(var i = 0; i < devices.length; i++) {
+                                var dev = devices[i];
+                                for(var cIndex = 0; cIndex < dev.Connections.length; cIndex++) {
+                                    if(dev.Connections[cIndex].ConnectedTo) {
+                                        console.log(dev.Connections[cIndex].guid + ' connected to ' + dev.Connections[cIndex].ConnectedTo.guid);
+                                        tobj.Connect(dev.Connections[cIndex].guid, dev.Connections[cIndex].ConnectedTo.guid);
+                                    }
+                                }
+                            }*/
+                        }
+
+                        // now add connections
+                        for(rDevice of rList) {
+                            var devices = dList[rDevice.guid];
                             for(var i = 0; i < devices.length; i++) {
                                 var dev = devices[i];
                                 for(var cIndex = 0; cIndex < dev.Connections.length; cIndex++) {
@@ -101,7 +361,6 @@ var Hector = function() {
                                     }
                                 }
                             }
-                            //console.log(devices);
                         }
                     }
                 });
@@ -118,9 +377,11 @@ var Hector = function() {
             } else {
                 var toConn = tobj.HectorCore.AllConnections[toConnectionGuid];
                 // TODO: See more matching statements in the C# version of this code.
-                if(fromConn.FrameType === toConn.FrameType) {
-                    fromConn.ConnectedTo = toConn;
-                    return true;
+                if(toConn) {
+                    if(fromConn.FrameType === toConn.FrameType) {
+                        fromConn.ConnectedTo = toConn;
+                        return true;
+                    }
                 }
             }
         }

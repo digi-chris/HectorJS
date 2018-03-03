@@ -38,6 +38,15 @@ module.exports.Matrix8x8 = function() {
 
     device.Connections.push(connInput);
 
+    var optBrightness = new HectorCore.IOOption('list', '15', device, 'list');
+    optBrightness.Data = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15'];
+    optBrightness.OnValueChanged = (option) => {
+      if(display) {
+        display.setBrightness(option.GetValue());
+      }
+    };
+    device.Options.Brightness = optBrightness;
+
     device.Init = function() {
     };
 

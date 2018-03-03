@@ -2,6 +2,7 @@ const bitmapManipulation = require("bitmap-manipulation");
 const uuidv1 = require('uuid/v1');
 const watchjs = require('watchjs');
 var AllDevices = {};
+var AllOptions = {};
 
 var IODevice = function() {
     var tobj = this;
@@ -143,23 +144,45 @@ module.exports.RigIODevice = function(name) {
     device.Name = name;
     var rigLink = new IOOption('link', '/RackView.html?rig=' + device.guid, device, 'link');
     device.Options['View Rig'] = rigLink;
+
     Object.defineProperty(device, 'Connections', {
         get: function() {
-            console.log("Getting connections for RigDevice...");
+            //console.log("Getting connections for RigDevice...");
             var rigConnections = [];
             for(var i = 0; i < _deviceList.length; i++) {
                 var dev = _deviceList[i];
                 for(var j = 0; j < dev.Connections.length; j++) {
-                    console.log(dev.Connections[j]);
+                    //console.log(dev.Connections[j]);
                     if(dev.Connections[j]) {
                         if(dev.Connections[j].Public) {
                             rigConnections.push(dev.Connections[j]);
                         }
                     }
                 }
-           }
-           return rigConnections;
+            }
+            return rigConnections;
         } 
+    });
+
+    var _options = device.Options;
+
+    Object.defineProperty(device, "Options", {
+        get: function() {
+            var rigOptions = {};
+            for(var optName in _options) {
+                rigOptions[optName] = _options[optName];
+            }
+            rigOptions.separator = new IOOption("separator", "", device, "separator");
+            for(var i = 0; i < _deviceList.length; i++) {
+                var dev = _deviceList[i];
+                for(var optName in dev.Options) {
+                    if(dev.Options[optName].Public) {
+                        rigOptions[dev.guid + "_" + optName] = dev.Options[optName];
+                    }
+                }
+            }
+            return rigOptions;
+        }
     });
 
     device.SetDeviceList = function(dList) {
@@ -178,6 +201,18 @@ var IOOption = function(dataType, value, parent, preferredControl) {
     this.PreferredControl = preferredControl;
     this._parentDevice = parent;
     this.Highlight = false;
+    this.Public = false;
+    watch(this, 'Public', function(prop, oldVal, val) {
+        //console.log("Option public changed from " + oldVal + " to " + val);
+        if(oldVal !== val) {
+            setTimeout(() => {
+                tobj._parentDevice.OptionUpdated(tobj);
+            }, 0);
+        }
+        return val;
+    });
+
+    AllOptions[this.guid] = this;
 
     this.GetValue = function() {
         if(tobj.DataType === "list") {
@@ -188,7 +223,7 @@ var IOOption = function(dataType, value, parent, preferredControl) {
     };
 
     this.SetValue = function(value, dontUpdateClients) {
-        console.log("Setting option value to '" + value + "'");
+        //console.log("Setting option value to '" + value + "'");
         if(tobj.DataType === "list") {
             for(var i = 0; i < tobj.Data.length; i++) {
                 if(tobj.Data[i] === value) {
@@ -218,6 +253,7 @@ var AllConnections = {};
 
 module.exports.AllConnections = AllConnections;
 module.exports.AllDevices = AllDevices;
+module.exports.AllOptions = AllOptions;
 
 //if (!Object.prototype.watch)
 function watch (obj, prop, handler) {
@@ -262,7 +298,7 @@ module.exports.IOConnection = function(parentDevice) {
     this._parentDevice = parentDevice;
     this.Public = false;
     watch(this, 'Public', function(prop, oldVal, val) {
-        console.log("Connection public changed from " + oldVal + " to " + val);
+        //console.log("Connection public changed from " + oldVal + " to " + val);
         if(oldVal !== val) {
             setTimeout(() => {
                 tobj._parentDevice.ConnectionUpdated(tobj);
@@ -370,3 +406,27 @@ class BitmapFrame {
 }
 
 module.exports.BitmapFrame = BitmapFrame;
+
+class VideoFrame {
+    constructor(width, height, alpha) {
+        this.Width = width;
+        this.Height = height;
+        if(alpha) {
+            this.ContainsAlpha = true;
+            this._dataBuffer = Buffer.alloc(width * height * 4);
+            this._stride = 4;
+        } else {
+            this.ContainsAlpha = false;
+            this._dataBuffer = Buffer.alloc(width * height * 3);
+            this._stride = 3;
+        }
+    }
+
+    SetPixel(x, y, color) {
+        // TODO: Needs finishing
+        if(x < this.Width && y < this.Height && x > -1 && y > -1) {
+            var offset = ((this.Width * y) + x) * this._stride;
+            //this._dataBuffer.
+        }
+    }
+}

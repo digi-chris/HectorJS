@@ -70,6 +70,7 @@ class GraphicsText extends GraphicsObject {
     super();
     this.Type = "text";
     this.Text = text;
+    this.Font = "pixel5x8";
     this.ForeColor = new Color(255, 255, 255);
     this.Output = null;
   }
@@ -78,7 +79,7 @@ class GraphicsText extends GraphicsObject {
     // TODO: Shouldn't be hard-coded
     var textWidth = 6 * this.Text.length;
     let bitmapFrame = new HectorCore.BitmapFrame(textWidth, 8);
-    TextWriter.DrawText(bitmapFrame, 0, 0, this.Text, "pixel5x8", 0xffffff);
+    TextWriter.DrawText(bitmapFrame, 0, 0, this.Text, this.Font, 0xffffff);
 
     var gFrame = new GraphicsFrame();
     //console.log('Cloning properties (X = ' + this.Properties.X + ')');
@@ -93,6 +94,36 @@ class GraphicsText extends GraphicsObject {
   }
 }
 
+class GraphicsCharacter extends GraphicsObject {
+  constructor(text) {
+    super();
+    this.Type = "character";
+    this.Char = text;
+    this.Font = "weather8x8";
+    this.ForeColor = new Color(255, 255, 255);
+    this.Output = null;
+  }
+
+  Draw() {
+    // TODO: Shouldn't be hard-coded
+    //var textWidth = 8 * this.Text.length;
+    let bitmapFrame = new HectorCore.BitmapFrame(8, 8);
+    //console.log('CHAR DRAWING: ' + this.Char);
+    TextWriter.DrawCharacter(bitmapFrame, 0, 0, this.Char, this.Font, 0xffffff);
+
+    var gFrame = new GraphicsFrame();
+    //console.log('Cloning properties (X = ' + this.Properties.X + ')');
+    //gFrame.Properties = this.Properties.Clone();
+    gFrame.Properties = Object.assign(new GraphicsObjectProperties, this.Properties);
+    gFrame.BackgroundImage = bitmapFrame;
+    //console.log(gFrame.Properties.X);
+
+    // TODO: We should be caching to Output, but in C# we use jsonIgnore to stop the Output property getting passed to the end user
+    //console.log('GraphicsCharacter.Draw "' + this.Char + '" complete.');
+    return gFrame;
+  }
+}
+
 class Color {
   constructor(red, green, blue) {
     this.Red = red;
@@ -102,6 +133,7 @@ class Color {
 }
 
 module.exports.GraphicsText = GraphicsText;
+module.exports.GraphicsCharacter = GraphicsCharacter;
 
 class GraphicsFrame {
   constructor() {

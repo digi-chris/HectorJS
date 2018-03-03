@@ -44,6 +44,14 @@ module.exports.CommandLink = function(hectorDevice) {
         }
     };
 
+    this.setDeviceName = function(deviceGuid, deviceName) {
+        var device = hectorDevice.HectorCore.AllDevices[deviceGuid];
+        if(device) {
+            console.log('Setting device name to "' + deviceName + '"');
+            device.Name = deviceName;
+        }
+    };
+
     this.setConnectionPublic = function(connectionGuid, optionPublic, callback) {
         optionPublic = optionPublic + '';
         var setPublic = (optionPublic.toLowerCase() == 'true');
@@ -51,6 +59,16 @@ module.exports.CommandLink = function(hectorDevice) {
             var conn = hectorDevice.HectorCore.AllConnections[connectionGuid];
             conn.Public = setPublic;
             conn._parentDevice._parentRig.DeviceUpdated(conn._parentDevice._parentRig, "ConnectionListChanged");
+        }
+    };
+
+    this.setOptionPublic = function(optionGuid, optionPublic) {
+        optionPublic = optionPublic + '';
+        var setPublic = (optionPublic.toLowerCase() == 'true');
+        if(hectorDevice.HectorCore.AllOptions[optionGuid]) {
+            var opt = hectorDevice.HectorCore.AllOptions[optionGuid];
+            opt.Public = setPublic;
+            opt._parentDevice._parentRig.DeviceUpdated(opt._parentDevice._parentRig, "OptionListChanged");
         }
     };
 
